@@ -1,0 +1,5 @@
+:set -fwarn-unused-binds -fwarn-unused-imports
+:set -isrc
+-- :load src/Lib.hs
+:load test/Spec.hs
+:load test/D1Spec.hs
