@@ -55,20 +55,18 @@ trafficLightAnimation = trafficController
 exercise1 :: IO ()
 exercise1 = animationOf trafficLightAnimation
 
+
 -- Exercise 2
 
-tree :: Integer -> Double -> Picture
-tree 0 t = leave 0 t
-tree n t = polyline [(0, 0), (0, 1)] & translated
+tree :: Picture -> Integer -> Picture
+tree b 0 = b
+tree b n = polyline [(0, 0), (0, 1)] & translated
   0
   1
-  (rotated (pi / 10) (tree (n - 1) t) & rotated (-pi / 10) (tree (n - 1) t))
+  (rotated (pi / 10) (tree b (n - 1)) & rotated (-pi / 10) (tree b (n - 1)))
 
-branch :: Integer -> Double -> Picture
-branch _ t = polyline [(0, 0), (0, 1)]
-
-leave :: Integer -> Double -> Picture
-leave _ t
+leave :: Double -> Picture
+leave t
   | dt < 10 = colored
     yellow
     (translated 0 0.1 (solidCircle (fromIntegral dt * 0.05)))
@@ -77,7 +75,7 @@ leave _ t
 
 exercise2 :: IO ()
 -- exercise2 = animationOf (leave 0)
-exercise2 = animationOf (tree 8)
+exercise2 = animationOf (\t -> (tree (leave t) 8))
 
 
 -- Exercise 3
@@ -85,7 +83,7 @@ exercise2 = animationOf (tree 8)
 wall, ground, storage, box :: Picture
 wall = undefined
 ground = undefined
-storage = undefined
+storage = colored brown (solidCircle 0.5)
 box = undefined
 
 drawTile :: Integer -> Picture
@@ -94,9 +92,18 @@ drawTile = undefined
 
 pictureOfMaze :: Picture
 pictureOfMaze = undefined
+-- pictureOfMaze = foldr drawTile [(x,y) | x<-[-1..3], y<-[1..2]]
+--   where draw (x:y) acc =
+
+tileRaw :: Integer -> Picture
+tileRaw 0 = blank
+tileRaw n = storage & translated (-1) 0 (tileRaw (n - 1)) & translated
+  1
+  0
+  (tileRaw (n - 1))
 
 exercise3 :: IO ()
-exercise3 = undefined
+exercise3 = drawingOf (tileRaw 10)
 
 maze :: Integer -> Integer -> Integer
 maze x y | abs x > 4 || abs y > 4   = 0
@@ -106,6 +113,13 @@ maze x y | abs x > 4 || abs y > 4   = 0
          | x >= -2 && y == 0        = 4
          | otherwise                = 2
 
+
+
+
+
+type F = Int->Int
+
+-- data F = Int->Int
 -- data I = Record Int Bool deriving (Show)
 -- x = Record 1 True
 -- x
@@ -118,7 +132,11 @@ maze x y | abs x > 4 || abs y > 4   = 0
 -- [x || y | x<-[False, True], y<-[False, True], x/=y]
 -- [[x,y,z] | x<-[1..50],y<-[1..50],z<-[1..50], x**2 + y**2 == z**2, x <= y && y<= z]
 -- head [1..]
--- zip [1..3] [1..4]
+-- map (\x -> (fst x) + (snd x)) (zip [1..3] [1..4])
+-- map (\x-> \y-> x+y) (zip [1..3] [1..4])
+-- [(x,y) | x<-[-1..3], y<-[1..2]]
+--
+-- (\x y -> x+y) 4 3
 -- zipWith (+) [1..6] [1..4]
 -- foldl (-) 0 [1..4]
 -- foldr (-) 0 [1..4]
@@ -127,6 +145,7 @@ maze x y | abs x > 4 || abs y > 4   = 0
 -- foldr (++) [] [[1],[2]]
 -- foldl (++) [] [[1],[2]]
 -- (:).
+-- data C = A|B|C
 
 
 
