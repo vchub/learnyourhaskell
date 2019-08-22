@@ -7,7 +7,7 @@ help: ## Print documentation
 
 ghcid: ## Run ghcid with the wallet-new project
 	ghcid \
-	    --command "stack ghci Lib --ghci-options=-fno-code"
+	    --command "stack ghci learnyourhaskell --ghci-options=-fno-code"
 
 ghcid-test: ## Have ghcid run the test suite for the wallet-new-specs on successful recompile
 	ghcid \
