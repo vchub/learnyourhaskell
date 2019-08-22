@@ -4,10 +4,12 @@ module CIS194.Homework1
   ( lightState
   )
 where
+-- import           Data.Map
+-- import qualified Data.Map                      as Map
 import           CodeWorld
 
 main :: IO ()
-main = exercise1
+main = exercise3
 
 -- Fill in the blanks! (When I say blanks, I mean undefineds)
 
@@ -81,43 +83,40 @@ exercise2 = animationOf (\t -> (tree (leave t) 8))
 -- Exercise 3
 
 wall, ground, storage, box :: Picture
-wall = undefined
-ground = undefined
-storage = colored brown (solidCircle 0.5)
-box = undefined
+wall = colored grey (solidRectangle 1 1)
+ground = colored yellow (solidRectangle 1 1)
+storage = solidCircle 0.3 & ground
+box = colored brown (solidRectangle 1 1)
 
-drawTile :: Integer -> Picture
-drawTile = undefined
+drawTileAt :: Integer -> Integer -> Picture
+drawTileAt x y = translated (fromIntegral x) (fromIntegral y) (maze x y)
 
 
 pictureOfMaze :: Picture
-pictureOfMaze = undefined
--- pictureOfMaze = foldr drawTile [(x,y) | x<-[-1..3], y<-[1..2]]
---   where draw (x:y) acc =
-
-tileRaw :: Integer -> Picture
-tileRaw 0 = blank
-tileRaw n = storage & translated (-1) 0 (tileRaw (n - 1)) & translated
-  1
-  0
-  (tileRaw (n - 1))
+-- pictureOfMaze = undefined
+pictureOfMaze = foldl (\acc (x, y) -> drawTileAt x y & acc)
+                      blank
+                      [ (x, y) | x <- [-10 .. 10], y <- [-10 .. 10] ]
 
 exercise3 :: IO ()
-exercise3 = drawingOf (tileRaw 10)
+exercise3 = drawingOf pictureOfMaze
 
-maze :: Integer -> Integer -> Integer
-maze x y | abs x > 4 || abs y > 4   = 0
-         | abs x == 4 || abs y == 4 = 1
-         | x == 2 && y <= 0         = 1
-         | x == 3 && y <= 0         = 3
-         | x >= -2 && y == 0        = 4
-         | otherwise                = 2
-
-
+maze :: Integer -> Integer -> Picture
+maze x y | abs x > 4 || abs y > 4   = blank
+         | abs x == 4 || abs y == 4 = wall
+         | x == 2 && y <= 0         = wall
+         | x == 3 && y <= 0         = storage
+         | x >= -2 && y == 0        = box
+         | otherwise                = ground
 
 
+-- drawTile 1 = wall
+-- drawTile 2 = ground
+-- drawTile 3 = storage
+-- drawTile 4 = box
+-- drawTile _ = blank
 
-type F = Int->Int
+
 
 -- data F = Int->Int
 -- data I = Record Int Bool deriving (Show)
@@ -146,9 +145,11 @@ type F = Int->Int
 -- foldl (++) [] [[1],[2]]
 -- (:).
 -- data C = A|B|C
+--
+-- type F = Int->Int
 
 
-
-
-
+-- m = [(1, 10), (2,20)]
+-- ml = \i->lookup i m
+-- ml 2
 
