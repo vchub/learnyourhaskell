@@ -53,7 +53,7 @@ drawPlayer :: Player -> Picture
 drawPlayer (Player R c) = atCoord c playerPic
 drawPlayer (Player L c) = atCoord c (scaled (-1) 1 playerPic) -- Cunning!
 drawPlayer (Player U c) = atCoord c (rotated (pi / 2) playerPic)
-drawPlayer (Player D c) = atCoord c (rotated (pi * 3 / 2) playerPic)
+drawPlayer (Player D c) = atCoord c $ rotated (pi * 3 / 2) playerPic
 
 atCoord :: Coord -> Picture -> Picture
 atCoord (C x y) pic = translated (fromIntegral x) (fromIntegral y) pic
@@ -100,7 +100,7 @@ resetableInteractionOf state0 handle draw = activityOf state0' handle' draw'
   handle' (KeyPress " ")   StartScreen = Running state0
   handle' _                StartScreen = StartScreen
   handle' (KeyPress "Esc") (Running _) = Running state0
-  handle' e                (Running s) = Running (handle e s)
+  handle' e                (Running s) = Running $ handle e s
 
 startScreen :: Picture
 startScreen = scaled 3 3 (lettering "Sokoban!")
@@ -109,5 +109,6 @@ exercise1 :: IO ()
 exercise1 = resetableInteractionOf initialPlayer handleEvent drawState
 
 
+-- (\l@(x:xs)-> (x,l)) [1,2,3]
 
 

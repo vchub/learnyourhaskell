@@ -12,6 +12,11 @@ numsFrom n = n : numsFrom (n + 1)
 fibs :: [Integer]
 fibs = [1, 1] ++ zipWith (+) fibs (tail fibs)
 
+-- putId :: Int -> Int
+-- putId x = do
+--   putStrLn "foo"
+--   x
+
 spec :: Spec
 spec = describe "StreamsSpec" $ do
   describe "ones" $ do
@@ -28,3 +33,6 @@ spec = describe "StreamsSpec" $ do
     it "1,1,2..21"
       $          take 8 fibs
       `shouldBe` ([1, 1, 2, 3, 5, 8, 13, 21] :: [Integer])
+
+  -- describe "lambda with do" $ do
+  --   it "print?" (putId 1) `shouldBe` 1
