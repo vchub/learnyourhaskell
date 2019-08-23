@@ -51,7 +51,7 @@ playerPic =
 
 drawPlayer :: Player -> Picture
 drawPlayer (Player R c) = atCoord c playerPic
-drawPlayer (Player L c) = atCoord c (rotated pi playerPic)
+drawPlayer (Player L c) = atCoord c (scaled (-1) 1 playerPic) -- Cunning!
 drawPlayer (Player U c) = atCoord c (rotated (pi / 2) playerPic)
 drawPlayer (Player D c) = atCoord c (rotated (pi * 3 / 2) playerPic)
 
@@ -65,13 +65,14 @@ adjacentCoord L (C x y) = C (x - 1) y
 adjacentCoord D (C x y) = C x (y - 1)
 
 movePlayer :: Direction -> Player -> Player
-movePlayer dir (Player d c) | isGround  = Player dir newCoord
+movePlayer dir (Player d c) | isOk      = Player dir newCoord
                             | otherwise = (Player d c)
  where
   newCoord = adjacentCoord dir c
-  isGround = case (maze newCoord) of
-    Ground -> True
-    _      -> False
+  isOk     = case (maze newCoord) of
+    Ground  -> True
+    Storage -> True
+    _       -> False
 
 
 handleEvent :: Event -> Player -> Player
@@ -86,10 +87,17 @@ drawState :: Player -> Picture
 drawState p = drawPlayer p & pictureOfMaze
 
 initialPlayer :: Player
-initialPlayer = Player L (C 0 1)
+initialPlayer = Player R (C 0 1)
+
+resetableInteractionOf
+  :: Player -> (Event -> Player -> Player) -> (Player -> Picture) -> IO ()
+resetableInteractionOf world handler draw = activityOf world handler' draw
+ where
+  handler' (KeyPress "A") _ = initialPlayer
+  handler' e              p = handler e p
 
 exercise1 :: IO ()
-exercise1 = activityOf initialPlayer handleEvent drawState
+exercise1 = resetableInteractionOf initialPlayer handleEvent drawState
 
 
 
