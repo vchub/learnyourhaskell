@@ -89,12 +89,21 @@ drawState p = drawPlayer p & pictureOfMaze
 initialPlayer :: Player
 initialPlayer = Player R (C 0 1)
 
-resetableInteractionOf
-  :: Player -> (Event -> Player -> Player) -> (Player -> Picture) -> IO ()
-resetableInteractionOf world handler draw = activityOf world handler' draw
+data SSState world = StartScreen | Running world
+
+resetableInteractionOf :: a -> (Event -> a -> a) -> (a -> Picture) -> IO ()
+resetableInteractionOf state0 handle draw = activityOf state0' handle' draw'
  where
-  handler' (KeyPress "A") _ = initialPlayer
-  handler' e              p = handler e p
+  state0' = StartScreen
+  draw' StartScreen = startScreen
+  draw' (Running s) = draw s
+  handle' (KeyPress " ")   StartScreen = Running state0
+  handle' _                StartScreen = StartScreen
+  handle' (KeyPress "Esc") (Running _) = Running state0
+  handle' e                (Running s) = Running (handle e s)
+
+startScreen :: Picture
+startScreen = scaled 3 3 (lettering "Sokoban!")
 
 exercise1 :: IO ()
 exercise1 = resetableInteractionOf initialPlayer handleEvent drawState
