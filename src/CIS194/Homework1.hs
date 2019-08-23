@@ -4,7 +4,6 @@ module CIS194.Homework1
   ( lightState
   )
 where
--- import           Data.Map
 -- import qualified Data.Map                      as Map
 import           CodeWorld
 

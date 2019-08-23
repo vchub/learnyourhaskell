@@ -7,5 +7,7 @@
 -- :load test/FoldsSpec.hs
 /* :load test/cis194/Pic1Spec.hs */
 /* :load src/cis194/pic1.hs */
-:load src/CIS194/Homework1.hs
-:load test/CIS194/Homework1Spec.hs
+/* :load test/CIS194/Homework1Spec.hs */
+/* :load test/StreamsSpec.hs */
+:load src/CIS194/Maze.hs
+:load src/CIS194/Homework2.hs
