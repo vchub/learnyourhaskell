@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 module FoldsSpec where
+import qualified Data.List                     as List
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 
@@ -12,11 +13,20 @@ myfoldr f acc xs = case xs of
 mysum :: (Num a) => [a] -> a
 mysum = myfoldr (+) 0
 
-substr :: (Ord a) => [a] -> [a] -> Bool
+substr :: (Eq a) => [a] -> [a] -> Bool
 substr []      _  = True
 substr (_ : _) [] = False
 substr term@(x : xs) (y : ys) | x == y    = substr xs ys
                               | otherwise = substr term ys
+
+substr2 :: (Eq a) => [a] -> [a] -> Bool
+substr2 term list = foldl
+  (\acc xs -> if take n xs == term then True else acc)
+  False
+  (List.tails list)
+  where n = length term
+
+
 
 
 spec :: Spec
@@ -36,6 +46,17 @@ spec = describe "FoldsSpec" $ do
     it "not substr" $ substr "ys" "axss" `shouldBe` False
     prop "substr prop" $ \s -> substr s ("some" ++ s ++ "foo") `shouldBe` True
 
+  describe "substr2" $ do
+    it "empty is substr2 of empty"
+      $          substr2 ([] :: [Integer]) [1]
+      `shouldBe` True
+    it "empty is substr2 [2,3]"
+      $          substr2 ([] :: [Integer]) [2, 3]
+      `shouldBe` True
+    it "first symbols" $ substr2 "xs" "xss" `shouldBe` True
+    it "not first symbols" $ substr2 "xs" "axss" `shouldBe` True
+    it "not substr2" $ substr2 "ys" "axss" `shouldBe` False
+    prop "substr2 prop" $ \s -> substr2 s ("some" ++ s ++ "foo") `shouldBe` True
 
 
 
