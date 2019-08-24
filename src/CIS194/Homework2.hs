@@ -89,30 +89,55 @@ drawState p = drawPlayer p & pictureOfMaze
 initialPlayer :: Player
 initialPlayer = Player R (C 0 1)
 
+startScreen :: Picture
+startScreen = scaled 3 3 (lettering "Sokoban!")
+
+
 data SSState world = StartScreen | Running world
-data Interation s = Interation s (Event->s->s) (s->Picture)
 
-runInteraction :: Interation s -> IO ()
-runInteraction (Interation s0 handle draw) = activityOf s0 handle draw
+data Interaction s = Interaction s (Event->s->s) (s->Picture)
 
-resetableInteractionOf :: a -> (Event -> a -> a) -> (a -> Picture) -> IO ()
--- resetableInteractionOf :: s -> Interation -> IO ()
-resetableInteractionOf state0 handle draw = activityOf state0' handle' draw'
+runInteraction :: Interaction s -> IO ()
+runInteraction (Interaction s0 handle draw) = activityOf s0 handle draw
+
+-- resetableInteractionOf :: a -> (Event -> a -> a) -> (a -> Picture) -> IO ()
+resetableInteractionOf :: Interaction s -> Interaction (SSState s)
+resetableInteractionOf (Interaction state0 handle draw) = Interaction state0'
+                                                                      handle'
+                                                                      draw'
  where
   state0' = StartScreen
   draw' StartScreen = startScreen
   draw' (Running s) = draw s
   handle' (KeyPress " ")   StartScreen = Running state0
   handle' _                StartScreen = StartScreen
-  -- handle' (KeyPress "Esc") (Running _) = Running state0
   handle' (KeyPress "Esc") (Running _) = StartScreen
   handle' e                (Running s) = Running $ handle e s
 
-startScreen :: Picture
-startScreen = scaled 3 3 (lettering "Sokoban!")
-
 exercise1 :: IO ()
-exercise1 = resetableInteractionOf initialPlayer handleEvent drawState
+exercise1 =
+  runInteraction $ withScoreScreen $ resetableInteractionOf $ Interaction
+    initialPlayer
+    handleEvent
+    drawState
+
+
+-- add score state/screen
+data ScoreState world = ScoreScreen | ScoreStateRunning world
+
+scoreScreen :: Picture
+scoreScreen = scaled 3 3 (lettering "Your Score:")
+
+withScoreScreen :: Interaction s -> Interaction (ScoreState s)
+withScoreScreen (Interaction s0 handle draw) = Interaction s0' handle' draw'
+ where
+  s0' = ScoreStateRunning s0
+  draw' ScoreScreen           = scoreScreen
+  draw' (ScoreStateRunning s) = draw s
+  handle' (KeyPress "S") (ScoreStateRunning _) = ScoreScreen
+  handle' (KeyPress "A") ScoreScreen           = ScoreStateRunning s0
+  handle' _              ScoreScreen           = ScoreScreen
+  handle' e              (ScoreStateRunning s) = ScoreStateRunning $ handle e s
 
 
 -- (\l@(x:xs)-> (x,l)) [1,2,3]
