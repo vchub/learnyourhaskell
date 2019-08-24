@@ -90,8 +90,13 @@ initialPlayer :: Player
 initialPlayer = Player R (C 0 1)
 
 data SSState world = StartScreen | Running world
+data Interation s = Interation s (Event->s->s) (s->Picture)
+
+runInteraction :: Interation s -> IO ()
+runInteraction (Interation s0 handle draw) = activityOf s0 handle draw
 
 resetableInteractionOf :: a -> (Event -> a -> a) -> (a -> Picture) -> IO ()
+-- resetableInteractionOf :: s -> Interation -> IO ()
 resetableInteractionOf state0 handle draw = activityOf state0' handle' draw'
  where
   state0' = StartScreen
@@ -99,7 +104,8 @@ resetableInteractionOf state0 handle draw = activityOf state0' handle' draw'
   draw' (Running s) = draw s
   handle' (KeyPress " ")   StartScreen = Running state0
   handle' _                StartScreen = StartScreen
-  handle' (KeyPress "Esc") (Running _) = Running state0
+  -- handle' (KeyPress "Esc") (Running _) = Running state0
+  handle' (KeyPress "Esc") (Running _) = StartScreen
   handle' e                (Running s) = Running $ handle e s
 
 startScreen :: Picture

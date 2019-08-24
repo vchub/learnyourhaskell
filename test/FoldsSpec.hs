@@ -1,7 +1,8 @@
 {-# OPTIONS_GHC -Wall #-}
 
 module FoldsSpec where
-import qualified Data.List                     as List
+import qualified Data.List             as List
+-- import qualified Data.Map                      as Map
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 
@@ -44,6 +45,10 @@ spec = describe "FoldsSpec" $ do
     it "first symbols" $ substr "xs" "xss" `shouldBe` True
     it "not first symbols" $ substr "xs" "axss" `shouldBe` True
     it "not substr" $ substr "ys" "axss" `shouldBe` False
+    it "some"
+      $                substr "cat" "im a cat burglar"
+      `shouldBe`       "cat"
+      `List.isInfixOf` "im a cat burglar"
     prop "substr prop" $ \s -> substr s ("some" ++ s ++ "foo") `shouldBe` True
 
   describe "substr2" $ do
