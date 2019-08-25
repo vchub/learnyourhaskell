@@ -56,7 +56,7 @@ movingBoxes Empty = Interaction Empty (\_ s -> s) (\_ -> blank)
 movingBoxes xs    = Interaction xs handle draw
  where
   move :: Direction -> Boxes -> Boxes
-  move dir s = mapL (\c -> adjacentCoord dir c) s
+  move dir s = mapL (adjacentCoord dir) s
   handle (KeyPress "Right") s = move R s
   handle (KeyPress "Left" ) s = move L s
   handle (KeyPress "Up"   ) s = move U s
@@ -70,5 +70,4 @@ runInteraction (Interaction s0 handle draw) = activityOf s0 handle draw
 
 main :: IO ()
 main = runInteraction $ movingBoxes boxes0
-
 

@@ -50,13 +50,13 @@ playerPic =
   where cranium = circle 0.18 & sector (7 / 6 * pi) (1 / 6 * pi) 0.18
 
 drawPlayer :: Player -> Picture
-drawPlayer (Player R c) = atCoord c playerPic
-drawPlayer (Player L c) = atCoord c (scaled (-1) 1 playerPic) -- Cunning!
-drawPlayer (Player U c) = atCoord c (rotated (pi / 2) playerPic)
-drawPlayer (Player D c) = atCoord c $ rotated (pi * 3 / 2) playerPic
+drawPlayer (Player R c) = drawAt c playerPic
+drawPlayer (Player L c) = drawAt c (scaled (-1) 1 playerPic) -- Cunning!
+drawPlayer (Player U c) = drawAt c (rotated (pi / 2) playerPic)
+drawPlayer (Player D c) = drawAt c $ rotated (pi * 3 / 2) playerPic
 
-atCoord :: Coord -> Picture -> Picture
-atCoord (C x y) pic = translated (fromIntegral x) (fromIntegral y) pic
+drawAt :: Coord -> Picture -> Picture
+drawAt (C x y) pic = translated (fromIntegral x) (fromIntegral y) pic
 
 adjacentCoord :: Direction -> Coord -> Coord
 adjacentCoord R (C x y) = C (x + 1) y

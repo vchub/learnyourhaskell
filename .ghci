@@ -9,5 +9,6 @@
 /* :load test/CIS194/Homework1Spec.hs */
 /* :load test/StreamsSpec.hs */
 /* :load src/CIS194/Maze.hs */
-:load test/FoldsSpec.hs
-:load src/CIS194/Homework2.hs
+/* :load test/FoldsSpec.hs */
+/* :load src/CIS194/Homework2.hs src/CIS194/MyList.hs test/CIS194/MyListSpec.hs */
+:load test/CoinChangeSpec.hs
