@@ -25,12 +25,12 @@ cal' (s : ss) stack = case reads s :: [(Double, String)] of
 toD :: String -> Double
 toD = \x -> read x :: Double
 
-toOp :: Num a => String -> a -> a -> a
-toOp "+" = (+)
-toOp "-" = (-)
-toOp "*" = (*)
--- toOp "**" = (**)
-toOp _   = undefined
+toOp :: Floating a => String -> a -> a -> a
+toOp "+"  = (+)
+toOp "-"  = (-)
+toOp "*"  = (*)
+toOp "**" = (**)
+toOp _    = undefined
 -- toOp _ _ _   = error "Unknown operator"
 
 
@@ -48,6 +48,9 @@ spec = describe "ReversePolishNotation" $ do
     it "calculate 1 2 +" $ calculate "1 2 +" `shouldBe` 3.0
     it "calculate 3 1 2 + -" $ calculate "3 1 2 + -" `shouldBe` 0
     it "calculate 10 4 3 + 2 * -" $ calculate "10 4 3 + 2 * -" `shouldBe` 4
+    it "calculate 10 4 3 + 2 * - 2 **"
+      $          calculate "10 4 3 + 2 * - 2 **"
+      `shouldBe` 16
 
 -- splitAt 1 [1,2,3]
 -- splitAt 2 [1,2,3]
