@@ -31,9 +31,17 @@ toOp "-"  = (-)
 toOp "*"  = (*)
 toOp "**" = (**)
 toOp _    = undefined
--- toOp _ _ _   = error "Unknown operator"
 
-
+solveRPN :: (Num a, Read a) => String -> a
+solveRPN = head . foldl ff [] . words
+ where
+  ff :: (Num a, Read a) => [a] -> String -> [a]
+  ff (x : y : ys) "+" = (x + y) : ys
+  ff (x : y : ys) "-" = (x - y) : ys
+  ff (x : y : ys) "*" = (x * y) : ys
+  -- ff (x : y : ys) "/" = (x / y) : ys
+  -- ff (x : y : ys) "**" = (x ** y) : ys
+  ff ys           s   = (read s) : ys
 
 
 spec :: Spec
@@ -51,6 +59,14 @@ spec = describe "ReversePolishNotation" $ do
     it "calculate 10 4 3 + 2 * - 2 **"
       $          calculate "10 4 3 + 2 * - 2 **"
       `shouldBe` 16
+
+  describe "solveRPN" $ do
+    it "solveRPN 1" $ solveRPN "1" `shouldBe` (1 :: Integer)
+    it "solveRPN 1 2 +" $ solveRPN "1 2 +" `shouldBe` (3 :: Integer)
+    it "solveRPN 3 1 2 + -" $ solveRPN "3 1 2 + -" `shouldBe` (0 :: Integer)
+    it "solveRPN 10 4 3 + 2 * -"
+      $          solveRPN "10 4 3 + 2 * -"
+      `shouldBe` (4 :: Integer)
 
 -- splitAt 1 [1,2,3]
 -- splitAt 2 [1,2,3]
