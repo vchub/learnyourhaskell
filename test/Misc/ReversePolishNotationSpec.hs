@@ -3,6 +3,8 @@
 
 module ReversePolishNotationSpec where
 -- import           Text.Read
+import qualified Data.List  as List
+-- import           System.Random
 import           Test.Hspec
 -- import           Test.Hspec.QuickCheck
 
@@ -43,9 +45,40 @@ solveRPN = head . foldl ff [] . words
   -- ff (x : y : ys) "**" = (x ** y) : ys
   ff ys           s   = (read s) : ys
 
+rpnExt :: String -> Double
+rpnExt = head . foldl ff [] . words
+ where
+  ff :: [Double] -> String -> [Double]
+  ff (x : y : ys) "+"   = (x + y) : ys
+  ff (x : y : ys) "-"   = (x - y) : ys
+  ff (x : y : ys) "*"   = (x * y) : ys
+  ff (x : y : ys) "/"   = (x / y) : ys
+  ff (x : y : ys) "**"  = (x ** y) : ys
+  ff (x     : ys) "log" = (log x) : ys
+  ff ys           "sum" = (sum ys) : []
+  ff ys           s     = (read s) : ys
+
+-- Heathrow to London
+minTime :: (Num a, Ord a) => [a] -> a
+minTime ns = minT $ mt ns (0, 0)
+ where
+  minT (a, b) = min a b
+  mt :: (Num a, Ord a) => [a] -> (a, a) -> (a, a)
+  mt (a : b : c : xs) (a0, b0) =
+    mt xs $ (min (a0 + a) (b0 + b + c), min (b0 + b) (a0 + a + c))
+  mt [a, b] (a0, b0) = ((a0 + a), (b0 + b))
+  mt []     ab       = ab
+  mt [_]    _        = undefined
 
 spec :: Spec
 spec = describe "ReversePolishNotation" $ do
+  describe "minTime" $ do
+    it "1 2" $ minTime [1, 2] `shouldBe` (1 :: Integer)
+    it "1 2" $ minTime [1, 3, 1, 5, 1] `shouldBe` (3 :: Integer)
+    it "1 2"
+      $          minTime [50, 10, 30, 5, 90, 20, 40, 2, 25, 10, 8, 0]
+      `shouldBe` (75 :: Integer)
+
   describe "read" $ do
     it "read 1" $ (read "1" :: Integer) `shouldBe` 1
     -- it "read +" $ (read "+" :: String) `shouldBe` "+"
@@ -67,6 +100,67 @@ spec = describe "ReversePolishNotation" $ do
     it "solveRPN 10 4 3 + 2 * -"
       $          solveRPN "10 4 3 + 2 * -"
       `shouldBe` (4 :: Integer)
+
+  describe "rpnExt" $ do
+    it "rpnExt 1" $ rpnExt "1" `shouldBe` 1
+    it "rpnExt 10 4 3 + 2 * -" $ rpnExt "10 4 3 + 2 * -" `shouldBe` 4
+    it "rpnExt 3 1 0 + log sum 3.0 /"
+      $          rpnExt "3 1 0 + log sum 3.0 /"
+      `shouldBe` 1
+
+  describe "Tree" $ do
+    it "[1]->"
+      $          foldl insert Empty [1]
+      `shouldBe` Node (1 :: Integer) Empty Empty
+    it "[1,2,3,3]->"
+      $          toList (foldl insert Empty ([1, 2, 3, 3] :: [Integer]))
+      `shouldBe` [1, 2, 3]
+    -- it "[1]->"
+    --   $ let got = 1
+    --         exp = 1
+    --     in  got `shouldBe` exp
+
+    it "[1,2,3,0]-> fmap succ"
+      $ let xs   = ([1, 2, 3, 0] :: [Integer])
+            t    = foldl insert Empty xs
+            got  = toList $ fmap succ t
+            want = List.sort $ fmap succ xs
+        in  got `shouldBe` want
+
+  describe "printIt" $ do
+    it "printIt" $ printIt "foo"
+
+
+data Tree a = Empty | Node a (Tree a) (Tree a)
+  deriving (Show, Eq)
+
+insert :: (Ord a) => Tree a -> a -> Tree a
+insert Empty x = Node x Empty Empty
+insert t@(Node v l r) x | x < v     = Node v (insert l x) r
+                        | x > v     = Node v l (insert r x)
+                        | otherwise = t
+
+toList :: Tree a -> [a]
+toList Empty        = []
+toList (Node x l r) = (toList l) ++ [x] ++ (toList r)
+
+instance Functor Tree where
+  fmap _ Empty        = Empty
+  fmap f (Node x l r) = Node (f x) (fmap f l) (fmap f r)
+
+printIt :: String -> IO ()
+printIt s = putStrLn s
+
+-- take 3 $ randoms (mkStdGen 11)
+-- take 3 $ randoms getStdGen
+-- gen = mkStdGen
+-- random gen::Int
+
+-- printIn :: String -> String
+-- printIn s = do
+--   putStrLn s
+--   s
+
 
 -- splitAt 1 [1,2,3]
 -- splitAt 2 [1,2,3]
@@ -93,4 +187,22 @@ spec = describe "ReversePolishNotation" $ do
 -- readMaybe "sss" :: Maybe Char
 -- readMaybe "sss" :: Maybe String
 
+
+-- import Data.Char
+-- toUpper 'a'
+
+-- data Frank a b  = Frank {frankField :: b a} deriving (Show)
+-- x = Frank {frankField = Just 'a'}
+-- x
+-- :k x
+-- :t x
+-- :i x
+
+
+
+
+-- case (1,2) of (x,y)->x+y
+-- case [1,2] of [x,y]->x
+-- case [1,2] of [x,y]->y
+-- case [1,2] of (x:y:ys)->y
 

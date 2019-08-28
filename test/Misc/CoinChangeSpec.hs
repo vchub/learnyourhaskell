@@ -77,10 +77,20 @@ spec = describe "CoinChangeSpec" $ do
     it "1 -> 2 -> 2^3 "
       $          fmap ((^ (2 :: Integer)) . succ) (Just 1 :: Maybe Integer)
       `shouldBe` Just 4
-
+{-
+   :{
+   data MyEither2 a e = L a | R e deriving Show
+   :}
+-}
 
 data MyEither a e = L a | R e
   deriving Show
+
+-- l = L "some"
+-- r = R 1
+-- fmap succ r
+-- <* R 2 1
+-- [2] <* [3]
 
 instance (Eq a, Eq e) =>Eq (MyEither a e) where
   L x == L y = x == y

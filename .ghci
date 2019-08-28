@@ -11,4 +11,5 @@
 /* :load src/CIS194/Maze.hs */
 /* :load test/FoldsSpec.hs */
 /* :load src/CIS194/Homework2.hs src/CIS194/MyList.hs test/CIS194/MyListSpec.hs */
-:load test/Misc/CoinChangeSpec.hs test/Misc/ReversePolishNotationSpec.hs
+-- :load test/Misc/CoinChangeSpec.hs test/Misc/ReversePolishNotationSpec.hs
+:load test/Bird/WordsCountSpec.hs
