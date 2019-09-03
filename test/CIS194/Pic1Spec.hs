@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
+
 module CIS194.Pic1Spec where
 import           Test.Hspec
 -- import           Test.Hspec.QuickCheck

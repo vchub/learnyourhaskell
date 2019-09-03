@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE DataKinds #-}
 
-module ReversePolishNotationSpec where
+module Misc.ReversePolishNotationSpec where
 -- import           Text.Read
 import qualified Data.List  as List
 -- import           System.Random

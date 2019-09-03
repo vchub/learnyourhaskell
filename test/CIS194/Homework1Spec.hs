@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wall #-}
 module CIS194.Homework1Spec where
-import           Test.Hspec
 import           CIS194.Homework1               ( lightState )
+import           Test.Hspec
 -- import           Test.Hspec.QuickCheck
 -- import           Data.List
 -- import           CodeWorld

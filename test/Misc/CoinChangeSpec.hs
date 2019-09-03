@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
-module CoinChangeSpec where
+module Misc.CoinChangeSpec where
 import           Test.Hspec
 -- import           Test.Hspec.QuickCheck
 

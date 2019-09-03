@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
-module WordsCountSpec where
+module Bird.WordsCountSpec where
 
 -- import           Data.Char
 import qualified Data.Map      as Map
@@ -90,6 +90,9 @@ primes = 2:3:(filter nondividable odds)
   where nomod n nums = all (\x-> n `mod` x /= 0) nums
         nondividable n = nomod n (takeWhile (<(div) n 2) primes)
         odds = [5,7..]
+
+-- null []
+-- null [1]
 
 -- nats = (2:[3,5..])
 -- takeWhile (< 40) nats
