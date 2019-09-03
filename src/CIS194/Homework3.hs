@@ -25,7 +25,7 @@ data Coord = C Integer Integer
 data Direction = R | U | L | D
 
 eqCoord :: Coord -> Coord -> Bool
-eqCoord = undefined
+eqCoord (C x y) (C x1 y1) = x == x1 && y == y1
 
 adjacentCoord :: Direction -> Coord -> Coord
 adjacentCoord R (C x y) = C (x + 1) y
@@ -50,21 +50,43 @@ maze (C x y) | abs x > 4 || abs y > 4   = Blank
              | otherwise                = Ground
 
 noBoxMaze :: Coord -> Tile
-noBoxMaze = undefined
+noBoxMaze c = case maze c of
+  Box -> Ground
+  t   -> t
 
 mazeWithBoxes :: List Coord -> Coord -> Tile
-mazeWithBoxes = undefined
+mazeWithBoxes Empty c = noBoxMaze c
+mazeWithBoxes (Entry b bs) c | eqCoord b c = Box
+                             | otherwise   = mazeWithBoxes bs c
 
 -- The state
 
-data State = State -- FIXME!
+data PlayerState = PlayerState Coord Direction
+playerInitState :: PlayerState
+playerInitState = PlayerState (C 0 0) L
 
+
+data State = State PlayerState BoxesState -- FIXME!
+
+
+type BoxesState = List Coord
 
 initialBoxes :: List Coord
-initialBoxes = undefined
+-- initialBoxes = undefined
+-- initialBoxes = Entry (C 0 1) (Entry (C 1 1) Empty)
+initialBoxes = foldl
+  (\acc c -> (Entry c acc))
+  Empty
+  [ (C i j) | i <- [-10 .. 10], j <- [-10 .. 10], isBox (C i j) ]
+ where
+  isBox c = case maze c of
+    Box -> True
+    _   -> False
+
+
 
 initialState :: State
-initialState = State -- FIXME!
+initialState = State playerInitState initialBoxes -- FIXME!
 
 -- Event handling
 
@@ -97,7 +119,7 @@ draw21times something = go (-10)
   go n  = something n & go (n + 1)
 
 drawTileAt :: Coord -> Picture
-drawTileAt c = atCoord c (drawTile (maze c))
+drawTileAt c = atCoord c (drawTile (noBoxMaze c))
 
 
 atCoord :: Coord -> Picture -> Picture
@@ -139,7 +161,8 @@ pictureOfBoxes :: List Coord -> Picture
 pictureOfBoxes cs = combine (mapList (\c -> atCoord c (drawTile Box)) cs)
 
 drawState :: State -> Picture
-drawState State = pictureOfMaze
+-- drawState State = pictureOfMaze
+drawState (State _ boxes) = (pictureOfBoxes boxes) & pictureOfMaze
 
 -- The complete interaction
 
@@ -168,7 +191,7 @@ resetable (Interaction state0 step handle draw) = Interaction state0
                                                               draw
  where
   handle' (KeyPress key) _ | key == "Esc" = state0
-  handle' e s              = handle e s
+  handle' e s                             = handle e s
 
 -- Start screen
 
@@ -189,8 +212,8 @@ withStartScreen (Interaction state0 step handle draw) = Interaction state0'
   step' t (Running s) = Running (step t s)
 
   handle' (KeyPress key) StartScreen | key == " " = Running state0
-  handle' _ StartScreen              = StartScreen
-  handle' e (Running s)              = Running (handle e s)
+  handle' _ StartScreen                           = StartScreen
+  handle' e (Running s)                           = Running (handle e s)
 
   draw' StartScreen = startScreen
   draw' (Running s) = draw s
