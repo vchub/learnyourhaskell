@@ -39,7 +39,7 @@ moveFromTo = undefined
 
 -- The maze
 
-data Tile = Wall | Ground | Storage | Box | Blank
+data Tile = Wall | Ground | Storage | Box | Blank deriving Eq
 
 maze :: Coord -> Tile
 maze (C x y) | abs x > 4 || abs y > 4   = Blank
@@ -59,21 +59,25 @@ mazeWithBoxes Empty c = noBoxMaze c
 mazeWithBoxes (Entry b bs) c | eqCoord b c = Box
                              | otherwise   = mazeWithBoxes bs c
 
+allCoords :: [Coord]
+allCoords = [ (C i j) | i <- [-10 .. 10], j <- [-10 .. 10] ]
+
 -- The state
 
 data PlayerState = PlayerState Coord Direction
+
 playerInitState :: PlayerState
-playerInitState = PlayerState (C 0 0) L
+playerInitState = PlayerState (head freeGround) R
+  where freeGround = filter (\c -> maze c == Ground) allCoords
 
 
-data State = State PlayerState BoxesState -- FIXME!
+data State = State PlayerState BoxesState
+-- FIXME!
 
 
 type BoxesState = List Coord
 
 initialBoxes :: List Coord
--- initialBoxes = undefined
--- initialBoxes = Entry (C 0 1) (Entry (C 1 1) Empty)
 initialBoxes = foldl
   (\acc c -> (Entry c acc))
   Empty
@@ -84,15 +88,38 @@ initialBoxes = foldl
     _   -> False
 
 
-
 initialState :: State
-initialState = State playerInitState initialBoxes -- FIXME!
+initialState = State playerInitState initialBoxes
 
 -- Event handling
 
-handleEvent :: Event -> State -> State
-handleEvent _ s = s -- FIXME!
+movePlayer :: Direction -> State -> State
+movePlayer d s@(State (PlayerState c _) boxes)
+  | t1 == Ground || t1 == Storage
+  = (State (PlayerState (adjacentCoord d c) d) boxes)
+  | t1 == Box && (t2 == Ground || t2 == Storage)
+  = (State (PlayerState (adjacentCoord d c) d) moveBox)
+  | otherwise
+  = s
+ where
+  [_, c1, c2] = take 3 $ (iterate (adjacentCoord d) c)
+  [t1, t2]    = map (mazeWithBoxes boxes) [c1, c2]
+  moveBox     = mapList (\bc -> if eqCoord bc c1 then c2 else bc) boxes
 
+isWon :: State -> Bool
+isWon (State _ boxes) = allList $ mapList isOnStorage boxes
+ where
+  isOnStorage c = maze c == Storage
+  allList Empty        = True
+  allList (Entry x xs) = x && allList (xs)
+
+handleEvent :: Event -> State -> State
+handleEvent (KeyPress key) s | key == "Right" = movePlayer R s
+                             | key == "Up"    = movePlayer U s
+                             | key == "Left"  = movePlayer L s
+                             | key == "Down"  = movePlayer D s
+                             | otherwise      = s
+handleEvent _ s = s
 -- Drawing
 
 wall, ground, storage, box :: Picture
@@ -160,9 +187,13 @@ player D =
 pictureOfBoxes :: List Coord -> Picture
 pictureOfBoxes cs = combine (mapList (\c -> atCoord c (drawTile Box)) cs)
 
+pictureOfPlayer :: PlayerState -> Picture
+pictureOfPlayer (PlayerState c d) = atCoord c (player d)
+
 drawState :: State -> Picture
 -- drawState State = pictureOfMaze
-drawState (State _ boxes) = (pictureOfBoxes boxes) & pictureOfMaze
+drawState (State p boxes) =
+  (pictureOfPlayer p) & (pictureOfBoxes boxes) & pictureOfMaze
 
 -- The complete interaction
 
@@ -182,6 +213,22 @@ runInteraction :: Interaction s -> IO ()
 runInteraction (Interaction state0 step handle draw) =
   interactionOf state0 step handle draw
 
+-- End Game
+-- data EndGame s = EndGame | StillRunning s
+
+endGame :: Interaction State -> Interaction State
+endGame (Interaction state0 step handle draw) = Interaction state0
+                                                            step
+                                                            handle'
+                                                            draw'
+ where
+  handle' e s | isWon s   = s
+              | otherwise = handle e s
+  draw' s | isWon s   = scaled 3 3 (lettering "You Won")
+          | otherwise = draw s
+
+
+
 -- Resetable interactions
 
 resetable :: Interaction s -> Interaction s
@@ -191,7 +238,7 @@ resetable (Interaction state0 step handle draw) = Interaction state0
                                                               draw
  where
   handle' (KeyPress key) _ | key == "Esc" = state0
-  handle' e s                             = handle e s
+  handle' e s              = handle e s
 
 -- Start screen
 
@@ -212,8 +259,8 @@ withStartScreen (Interaction state0 step handle draw) = Interaction state0'
   step' t (Running s) = Running (step t s)
 
   handle' (KeyPress key) StartScreen | key == " " = Running state0
-  handle' _ StartScreen                           = StartScreen
-  handle' e (Running s)                           = Running (handle e s)
+  handle' _ StartScreen              = StartScreen
+  handle' e (Running s)              = Running (handle e s)
 
   draw' StartScreen = startScreen
   draw' (Running s) = draw s
@@ -222,5 +269,7 @@ withStartScreen (Interaction state0 step handle draw) = Interaction state0'
 -- The main function
 
 main :: IO ()
-main = runInteraction sokoban
+main = runInteraction $ resetable $ withStartScreen $ endGame sokoban
+-- main = runInteraction sokoban
+
 
