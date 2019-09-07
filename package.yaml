@@ -25,6 +25,8 @@ dependencies:
 - codeworld-api >= 0.3
 - containers >= 0.6
 - random >= 1
+# - QuickCheck >= 2.*
+- QuickCheck >= 2
 
 
 library:
@@ -42,6 +44,16 @@ executables:
     - learnyourhaskell
 
 tests:
+  learnyourhaskell-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - learnyourhaskell
+
   # Logic:
   #   main:                Spec.hs
   #   source-dirs:         test/Logic
@@ -69,13 +81,3 @@ tests:
   #   - -with-rtsopts=-N
   #   dependencies:
   #   - learnyourhaskell
-
-  learnyourhaskell-test:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - learnyourhaskell

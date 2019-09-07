@@ -238,7 +238,7 @@ resetable (Interaction state0 step handle draw) = Interaction state0
                                                               draw
  where
   handle' (KeyPress key) _ | key == "Esc" = state0
-  handle' e s              = handle e s
+  handle' e s                             = handle e s
 
 -- Start screen
 
@@ -259,8 +259,8 @@ withStartScreen (Interaction state0 step handle draw) = Interaction state0'
   step' t (Running s) = Running (step t s)
 
   handle' (KeyPress key) StartScreen | key == " " = Running state0
-  handle' _ StartScreen              = StartScreen
-  handle' e (Running s)              = Running (handle e s)
+  handle' _ StartScreen                           = StartScreen
+  handle' e (Running s)                           = Running (handle e s)
 
   draw' StartScreen = startScreen
   draw' (Running s) = draw s
