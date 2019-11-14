@@ -13,6 +13,7 @@
 /* :load src/CIS194/Homework2.hs src/CIS194/MyList.hs test/CIS194/MyListSpec.hs */
 -- :load test/Misc/CoinChangeSpec.hs test/Misc/ReversePolishNotationSpec.hs
 -- :load test/Bird/WordsCountSpec.hs
-:load src/CIS194/Homework4.hs
-:load test/CIS194/Homework4Spec.hs
+/* :load test/CIS194/Homework4Spec.hs */
+/* :load src/CIS194/Homework4.hs */
 :load test/Logic/PrimeSpec.hs
+:load test/Logic/Prime2Spec.hs

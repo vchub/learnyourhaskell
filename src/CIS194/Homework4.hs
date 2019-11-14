@@ -28,10 +28,13 @@ combine (Entry p ps) = p & combine ps
 
 data Coord = C Integer Integer
 
+instance Eq Coord where
+  C x1 y1 == C x2 y2  = x1==x2 && y1 == y2
+
 data Direction = R | U | L | D
 
-eqCoord :: Coord -> Coord -> Bool
-eqCoord (C x y) (C x1 y1) = x == x1 && y == y1
+-- eqCoord :: Coord -> Coord -> Bool
+-- eqCoord (C x y) (C x1 y1) = x == x1 && y == y1
 
 adjacentCoord :: Direction -> Coord -> Coord
 adjacentCoord R (C x y) = C (x + 1) y
@@ -62,8 +65,8 @@ noBoxMaze c = case maze c of
 
 mazeWithBoxes :: List Coord -> Coord -> Tile
 mazeWithBoxes Empty c = noBoxMaze c
-mazeWithBoxes (Entry b bs) c | eqCoord b c = Box
-                             | otherwise   = mazeWithBoxes bs c
+mazeWithBoxes (Entry b bs) c | b == c    = Box
+                             | otherwise = mazeWithBoxes bs c
 
 allCoords :: [Coord]
 allCoords = [ (C i j) | i <- [-10 .. 10], j <- [-10 .. 10] ]
@@ -110,7 +113,7 @@ movePlayer d s@(State (PlayerState c _) boxes)
  where
   [_, c1, c2] = take 3 $ (iterate (adjacentCoord d) c)
   [t1, t2]    = map (mazeWithBoxes boxes) [c1, c2]
-  moveBox     = mapList (\bc -> if eqCoord bc c1 then c2 else bc) boxes
+  moveBox     = mapList (\bc -> if bc == c1 then c2 else bc) boxes
 
 isWon :: State -> Bool
 isWon (State _ boxes) = allList $ mapList isOnStorage boxes
@@ -244,7 +247,7 @@ resetable (Interaction state0 step handle draw) = Interaction state0
                                                               draw
  where
   handle' (KeyPress key) _ | key == "Esc" = state0
-  handle' e s              = handle e s
+  handle' e s                             = handle e s
 
 -- Start screen
 
@@ -265,8 +268,8 @@ withStartScreen (Interaction state0 step handle draw) = Interaction state0'
   step' t (Running s) = Running (step t s)
 
   handle' (KeyPress key) StartScreen | key == " " = Running state0
-  handle' _ StartScreen              = StartScreen
-  handle' e (Running s)              = Running (handle e s)
+  handle' _ StartScreen                           = StartScreen
+  handle' e (Running s)                           = Running (handle e s)
 
   draw' StartScreen = startScreen
   draw' (Running s) = draw s

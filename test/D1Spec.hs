@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -Wall #-}
 module D1Spec where
+import           Data.List
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
-import           Data.List
 -- import           CodeWorld
 
 max' :: (Ord a) => a -> a -> a
@@ -24,8 +24,8 @@ quickSort [] = []
 quickSort (x : xs) =
   let smaller = quickSort (filter (<= x) xs)
       bigger  = quickSort (filter (> x) xs)
-                                                              -- let smaller = quickSort [ y | y <- xs, y <= x ]
-                                                                  -- bigger  = quickSort [ y | y <- xs, y > x ]
+                                                                  -- let smaller = quickSort [ y | y <- xs, y <= x ]
+                                                                      -- bigger  = quickSort [ y | y <- xs, y > x ]
   in  smaller ++ [x] ++ bigger
 
 

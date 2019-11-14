@@ -2,6 +2,7 @@
 
 module Logic.PrimeSpec where
 import           Data.Char
+-- import           Data.List.Ordered
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 -- import qualified Test.QuickCheck.Gen           as Gen
@@ -15,7 +16,6 @@ isPrime0 n | n < 1     = error "not a positive Integer"
   ldf i n' | i ^ (2 :: Integer) > n' = n'
            | mod n' i == 0           = i
            | otherwise               = ldf (succ i) n'
-
 
 
 spec :: Spec
@@ -44,21 +44,28 @@ spec = describe "Primes and cypher" $ do
       $          take 11 primes1
       `shouldBe` [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31]
 
-  describe "factorize" $ do
+  describe "primeFactors" $ do
     it "[2,3,4,6]"
-      $          map factorize [2, 3, 4, 6, 8]
+      $          map primeFactors [2, 3, 4, 6, 8]
       `shouldBe` [[2], [3], [2, 2], [2, 3], [2, 2, 2]]
-    it "n = product factors" $ (product $ factorize 10) `shouldBe` 10
-    it "n = product factors 1003" $ (product $ factorize 1003) `shouldBe` 1003
+    it "n = product factors" $ (product $ primeFactors 10) `shouldBe` 10
+    it "n = product factors 1003"
+      $          (product $ primeFactors 1003)
+      `shouldBe` 1003
     it "n = product factors property" $ prop_Product0
     it "n = product factors property 2" $ forAll (choose (1, 100)) $ \n ->
-      product (factorize n) == n
+      let factors = primeFactors n
+      in  product factors == n && all isPrime1 factors
 
   describe "property" $ do
     it "reverse" $ property $ prop_reverse
     prop "reverse 2" $ prop_reverse
-    -- prop "n = product fuctors" $ prop_Product
 
+  describe "isPrime1" $ do
+    it "1" $ isPrime1 1 `shouldBe` False
+    it "2" $ isPrime1 2 `shouldBe` True
+    it "11" $ isPrime1 11 `shouldBe` True
+    it "= isPrime0" $ forAll (choose (1, 1000)) $ \n -> isPrime1 n == isPrime0 n
 
 divides :: Integer -> Integer -> Bool
 divides a n = mod n a == 0
@@ -72,8 +79,17 @@ primes1 = 2 : (filter $ nondividedBy primes1) [3, 5 ..]
                           | otherwise   = nondividedBy ps n
   nondividedBy [] _ = False
 
-factorize :: Integer -> [Integer]
-factorize n' = f n' primes1
+isPrime1 :: Integer -> Bool
+isPrime1 n | n <= 1    = False
+           | otherwise = find primes1
+ where
+  find (p : ps) | n < p     = False
+                | n == p    = True
+                | otherwise = find ps
+  find [] = False
+
+primeFactors :: Integer -> [Integer]
+primeFactors n' = f n' primes1
  where
   f :: Integer -> [Integer] -> [Integer]
   f n ps@(p : rest) | p > n       = []
@@ -86,9 +102,20 @@ genNat = choose (1, 100)
 
 prop_Product0 :: Property
 prop_Product0 =
-  forAll (choose (1, 1000) :: Gen Integer) $ \i -> product (factorize i) == i
+  forAll (choose (1, 1000) :: Gen Integer) $ \i -> product (primeFactors i) == i
 
 prop_reverse :: [Int] -> Bool
 prop_reverse xs = reverse (reverse xs) == xs
 
+main :: IO ()
+main = do
+  s <- getLine
+  putStrLn $ "hi there " ++ s
+
+{-
+   :{
+   s = putStrLn "Hi there!"
+
+   :}
+-}
 
