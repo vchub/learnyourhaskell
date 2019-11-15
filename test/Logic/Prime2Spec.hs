@@ -61,9 +61,72 @@ qs (x : xs) = (qs $ filter (<= x) xs) ++ [x] ++ (qs $ filter (> x) xs)
 lookup1::Eq a => a->[(a,b)]->Maybe b
 lookup1 x = foldr (\(a,b) acc -> if a==x then Just b else acc) Nothing
 
+birthday::Float->Integer
+birthday prob = go 1 1
+  where
+    go:: Integer->Float->Integer
+    go n acc | 1-acc >= prob = n
+             | otherwise = go (n+1) (acc * (fromInteger $ 365-n)/365 )
+
+repeat1 :: a->[a]
+repeat1 x = (x :repeat1 x)
+
+blowup::String->String
+blowup s = go "" 1 s
+  where go:: String->Int->String->String
+        go acc _ ""     = acc
+        go acc i (x:xs) = go (acc ++ take i (repeat1 x)) (succ i) xs
+        -- go acc i (x:xs) = go (acc ++ repeat0 i [x]) (succ i) xs
+        -- repeat0 i x | i<1 = ""
+        --             | otherwise = x ++ repeat0 (pred i) x
+
+blowup2::String->String
+blowup2 s = [x | (c,i) <- zip s [1,2..], x<- take i (repeat c)]
+
+isprefix:: String->String->Bool
+isprefix "" _          = True
+isprefix (x:xs) (y:ys) = x == y && isprefix xs ys
+isprefix _ _           = False
+
+issubstr:: String->String->Bool
+issubstr [] _   = True
+issubstr _ []   = False
+issubstr sub ss = isprefix sub ss || issubstr sub (drop 1 ss)
 
 spec :: Spec
 spec = describe "Discrete math" $ do
+  describe "issubstr" $ do
+    it "" $ issubstr "" "" `shouldBe` True
+    it "" $ issubstr "a" "ba" `shouldBe` True
+    it "" $ issubstr "ab" "abc" `shouldBe` True
+    it "" $ issubstr "ab" "xabc" `shouldBe` True
+    it "" $ issubstr "ab" "ccabc" `shouldBe` True
+    it "" $ issubstr "ab" "xccabc" `shouldBe` True
+    it "" $ issubstr "ab" "ccbac" `shouldBe` False
+
+  describe "isprefix" $ do
+    it "" $ isprefix "" "" `shouldBe` True
+    it "a a" $ isprefix "a" "a" `shouldBe` True
+    it "a " $ isprefix "a" "" `shouldBe` False
+    it "_ a" $ isprefix "" "a" `shouldBe` True
+    it "a ab" $ isprefix "a" "ab" `shouldBe` True
+    it "ab abc" $ isprefix "ab" "abc" `shouldBe` True
+    it "ab acc" $ isprefix "ab" "acc" `shouldBe` False
+
+  describe "blowup2" $ do
+    it "a" $ blowup2 "a" `shouldBe` "a"
+    it "ab" $ blowup2 "ab" `shouldBe` "abb"
+    it "abc" $ blowup2 "abc" `shouldBe` "abbccc"
+
+  describe "blowup" $ do
+    it "a" $ blowup "a" `shouldBe` "a"
+    it "ab" $ blowup "ab" `shouldBe` "abb"
+    it "abc" $ blowup "abc" `shouldBe` "abbccc"
+
+  describe "birthday" $ do
+    it "2" $ birthday (fromInteger 1- 364/365) `shouldBe` 2
+    it "3" $ birthday (fromInteger 1- 364*363/(365*365)) `shouldBe` 4
+    it "22" $ birthday 0.5 `shouldBe` 23
 
   describe "lookup1" $ do
     it "[]" $ lookup1 (1 ::Integer) [] `shouldBe` ( Nothing :: Maybe Integer)
