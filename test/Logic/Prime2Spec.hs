@@ -9,7 +9,6 @@ import           Test.Hspec.QuickCheck
 -- import qualified Test.QuickCheck.Gen           as Gen
 -- import           Test.QuickCheck
 
-
 isPrime01 :: Integer -> Bool
 isPrime01 n | n < 1     = error "not a positive Integer"
             | n == 1    = False
@@ -20,7 +19,7 @@ isPrime01 n | n < 1     = error "not a positive Integer"
           | otherwise     = ld (succ i) n
 
 primes1 :: [Integer]
-primes1 = 2 : (filter $ nondividedBy primes1) [3, 5 ..]
+primes1 = 2 : filter (nondividedBy primes1) [3, 5 ..]
  where
   nondividedBy :: [Integer] -> Integer -> Bool
   nondividedBy (p : ps) n | p * p > n    = True
@@ -93,8 +92,90 @@ issubstr [] _   = True
 issubstr _ []   = False
 issubstr sub ss = isprefix sub ss || issubstr sub (drop 1 ss)
 
+
+takeWhile1::(a->Bool)->[a]->[a]
+takeWhile1 _ [] = []
+takeWhile1 f (x:xs) | f x = (x:takeWhile1 f xs)
+                    | otherwise = []
+
+{-
+   [1,2]<[3,4]
+
+
+ -}
+
+-- intSqrt :: Int -> Int
+-- intSqrt x | x<0 = error "negative intSqrt"
+--           | otherwise = floor.sqrt.fromInteger $ x
+
+-- primes3:: [Integer]
+-- -- primes3 = [x | x<-(2:[3,5..]), all (\a-> (mod x a) /= 0 ) (takeWhile1 (\a-> a*a < x) primes3) ]
+-- primes3 = [x | x<-(2:[3,5..]), all (\a-> (mod x a) /= 0 ) (takeWhile1 (\a-> a*a < 10) primes3) ]
+
+fibs::[Integer]
+fibs = [1,1] ++ [x | x<- zipWith (+) fibs (drop 1 fibs)]
+
+and'::Bool->Bool->Bool
+and' True b  = b
+and' False _ = False
+
+mult :: Int -> Int -> Int -> Int
+-- mult x y z = x*y*z”
+mult = \x->(\y->(\z->x*y*z))
+
+makeList::Integer->[Integer]
+makeList n' = go n' []
+  where go 0 acc = acc
+        go n acc = go (div n 10)  (mod n 10 : acc)
+
+luhnAlgo::Integer->Bool
+luhnAlgo n' = (sum $ go n' False []) `mod` 10 == 0
+  where go 0 _ acc     = acc
+        go n isOdd acc = go (div n 10) (not isOdd)  (transf n isOdd : acc)
+        transf n True  = if 2*n > 9 then 2*n-9 else 2*n
+        transf n False = n
+
+concat1::[[a]]->[a]
+concat1 xss = [x | xs<-xss, x<-xs]
+
 spec :: Spec
 spec = describe "Discrete math" $ do
+
+  describe "concat1" $ do
+    it "1" $ concat1 ([[1,2],[3,4]]::[[Int]]) `shouldBe` [1..4]
+    let xss = ([[1..x] | x<-[1..10]]::[[Int]])
+     in do
+       it "xss" $ concat1 xss `shouldBe` concat xss
+
+  describe "luhnAlgo" $ do
+    it "makeList" $ makeList 2 `shouldBe` [2]
+    it "makeList" $ makeList 29 `shouldBe` [2,9]
+    it "makeList" $ makeList 729 `shouldBe` [7,2,9]
+    it "makeList" $ makeList 9929 `shouldBe` [9,9,2,9]
+    it "luhnAlgo 9" $ luhnAlgo 9 `shouldBe` False
+    it "luhnAlgo" $ luhnAlgo 99 `shouldBe` False
+    it "luhnAlgo" $ luhnAlgo 1784 `shouldBe` True
+    it "luhnAlgo" $ luhnAlgo 4783 `shouldBe` False
+    it "luhnAlgo" $ luhnAlgo 79927398713 `shouldBe` False
+    -- it "luhnAlgo" $ luhnAlgo 4024 `shouldBe` True
+    -- prop "all < 10" $ \n -> all (<10) (makeList n) == True
+
+  describe "mult" $ do
+    it "" $ mult 1 2 3 `shouldBe` 6
+    prop "mult" $ \x y z -> mult x y z `shouldBe` x*y*z
+
+  describe "and'" $ do
+    it "" $ and' True False `shouldBe` False
+    prop "and" $ \a b -> and' a b `shouldBe` a && b
+
+  describe "fibs" $ do it "1,1,2.." $ take 8 fibs `shouldBe` [1,1,2,3,5,8,13,21]
+
+  describe "takeWhile1" $ do
+    it "odd" $ takeWhile1 odd ([]::[Integer]) `shouldBe` []
+    it "odd" $ takeWhile1 odd ([1,3,5,6]::[Integer]) `shouldBe` [1,3,5]
+    it "odd" $ takeWhile1 odd ([1,4,5,6]::[Integer]) `shouldBe` [1]
+    it "odd" $ takeWhile1 (\x-> x*x < 5) ([1,2..]::[Integer]) `shouldBe` [1,2]
+
   describe "issubstr" $ do
     it "" $ issubstr "" "" `shouldBe` True
     it "" $ issubstr "a" "ba" `shouldBe` True
@@ -175,6 +256,6 @@ spec = describe "Discrete math" $ do
     it "2,3,5,7,11,13" $ all isPrime01 [2, 3, 5, 7, 11, 13] `shouldBe` True
     it "4,6,9" $ all (not . isPrime01) [4, 6, 9] `shouldBe` True
 
-  describe "isPrime0" $ do
+  describe "primes1" $ do
     it "first primes1" $ take 5 primes1 `shouldBe` [2, 3, 5, 7, 11]
     it "first primes1" $ all isPrime01 (take 5 primes1) `shouldBe` True
