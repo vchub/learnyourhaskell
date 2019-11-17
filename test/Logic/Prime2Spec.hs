@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -Wall #-}
 
 module Logic.Prime2Spec where
+import           Data.Char
 import           Data.List
--- import           Data.Char
 -- import           Data.List.Ordered
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
@@ -138,8 +138,55 @@ luhnAlgo n' = (sum $ go n' False []) `mod` 10 == 0
 concat1::[[a]]->[a]
 concat1 xss = [x | xs<-xss, x<-xs]
 
+find1::Eq a=> a -> [(a,b)] -> [b]
+find1 k' kvs = [v | (k,v)<-kvs, k==k']
+
+pairs:: [a]->[(a,a)]
+pairs xs = zip xs (tail xs)
+
+char2Int::Char->Int
+char2Int c = ord c - ord 'a'
+
+int2Char::Int->Char
+int2Char n = chr $ ord 'a' + n
+
+shift::Int->Char->Char
+shift n c | isLower c= int2Char $ mod (n + char2Int c) 26
+        | otherwise = c
+
+encode::Int->String->String
+encode n ss = [shift n c | c<-ss]
+
 spec :: Spec
 spec = describe "Discrete math" $ do
+
+  describe "encode" $ do
+    it "" $ encode (-5) (encode 5 "xyz")  `shouldBe` "xyz"
+    it "" $ encode 3 "haskell is fun"  `shouldBe` "kdvnhoo lv ixq"
+    it "" $ encode (-3)  "kdvnhoo lv ixq"`shouldBe` "haskell is fun"
+
+  describe "mix" $ do
+    let sorted::[Int]->Bool
+        -- sorted xs = all (\(a,b)-> a<=b) (pairs xs)
+        sorted xs = and [x<=y | (x,y)<- pairs xs]
+
+        positons:: Int->[Int]->[Int]
+        positons x xs = [i | (i,y)<-zip [0..] xs, y==x]
+     in do
+      it "" $ sorted [1,2,3,4] `shouldBe` True
+      it "" $ sorted [1,5,3,4] `shouldBe` False
+      it "" $ positons 1 [1,5,1,4] `shouldBe` [0,2]
+      it "" $ positons 5 [1,5,1,4] `shouldBe` [1]
+      it "" $ positons 6 [1,5,1,4] `shouldBe` []
+
+
+  describe "pairs" $ do
+    it "" $ pairs ([1,2,3,4]::[Int]) `shouldBe` [(1,2),(2,3),(3,4)]
+
+  describe "find1" $ do
+    it "[(1,2)]" $ find1 1 ([(1,2)]::[(Int, Int)])  `shouldBe` [2]
+    it "[(1,2)]" $ find1 1 ([(2,3),(1,2)]::[(Int, Int)])  `shouldBe` [2]
+    it "[(1,2)]" $ find1 1 ([(2,3),(1,2),(1,4)]::[(Int, Int)])  `shouldBe` [2,4]
 
   describe "concat1" $ do
     it "1" $ concat1 ([[1,2],[3,4]]::[[Int]]) `shouldBe` [1..4]
