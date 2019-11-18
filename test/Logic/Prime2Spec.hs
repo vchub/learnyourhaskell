@@ -157,11 +157,86 @@ shift n c | isLower c= int2Char $ mod (n + char2Int c) 26
 encode::Int->String->String
 encode n ss = [shift n c | c<-ss]
 
+-- frequencies of English letters
+table :: [Float]
+table = [8.1, 1.5, 2.8, 4.2, 12.7, 2.2, 2.0, 6.1, 7.0, 0.2, 0.8, 4.0, 2.4, 6.7, 7.5, 1.9, 0.1, 6.0, 6.3, 9.0, 2.8, 1.0, 2.4, 0.2, 2.0, 0.1]
+
+count::Eq a => a -> [a] -> Int
+count c cs = sum [1 | x<- cs, x == c]
+
+str2Ocur:: String->[Int]
+str2Ocur cs = [count c cs | c<-['a'..'z']]
+
+toFreq:: [Int]->[Float]
+toFreq xs = [fromIntegral x/n | x<-xs]
+  where n = fromIntegral (length xs)
+
+min1::Ord a => [(a, Int)]->(a, Int)
+min1 []     = error "min1 of empty list"
+min1 (x:xs) = foldl' (\a b -> if fst a < fst b then a else b) x xs
+
+rotate::[a]->Int->[a]
+rotate s i = (drop i s) ++ (take i s)
+
+diff::Num a => [a]->[a]->[a]
+diff x y = zipWith (-) x y
+
+-- type Norm = [a]->[a]->a
+
+norm::Num a => [a]->a
+norm xs = sum [x*x | x <- xs]
+
+diffNorm::Num a => [a]->[a]->a
+diffNorm x y = norm $ diff x y
+
+chiNorm::Fractional a => [a]->[a]->a
+chiNorm x y = sum $ zipWith (\a b-> (a-b)*(a-b)/a) x y
+
+
+findMinShift::(Ord a, Fractional a) => [a]->[a]->Int
+findMinShift tbl sample = snd $ min1 $ [((chiNorm tbl (rotate sample i)), i) |
+          i<-[0..length sample]]
+
+hack::String -> String
+hack s = encode (negate m) s
+  where m = findMinShift table sample
+        sample = toFreq $ str2Ocur s
+
+
 spec :: Spec
 spec = describe "Discrete math" $ do
 
+  describe "hack" $ do
+    it "bb -> ee" $ hack "bb" `shouldBe` "ee"
+    it "zdd -> aee" $ hack "zdd" `shouldBe` "aee"
+    it "kdvnhoo lv ixq" $ hack "kdvnhoo lv ixq" `shouldBe` "haskell is fun"
+    it "vscd mywzboroxcsyxc kbo ecopev" $ hack "vscd mywzboroxcsyxc kbo ecopev"
+        `shouldBe` "list comprehensions are useful"
+
+
+
+  describe "frequencies" $ do
+    it "min1" $ min1 ([(0.5, 1), (0.4, 2)]::[(Float, Int)]) `shouldBe` (0.4, 2)
+    let x = ([1,2,3] :: [Int])
+        y = ([0,2,1] :: [Int])
+     in do
+      it "norm of x - y" $ norm (diff x y) `shouldBe` 5
+      it "rotate" $ rotate x 0 `shouldBe` x
+      it "rotate" $ rotate x 1 `shouldBe` [2,3,1]
+      it "rotate" $ rotate x 2 `shouldBe` [3,1,2]
+
+    it "count" $ count 'x' "some" `shouldBe` 0
+    it "count" $ count 'x' "soxmxe" `shouldBe` 2
+    let ss = "aba"
+        fr = str2Ocur ss
+        want = take 2 fr
+     in do
+      it "str2Ocur" $ want `shouldBe` [2,1]
+      it "str2Ocur" $ all (== 0) (drop 2 fr) `shouldBe` True
+
   describe "encode" $ do
     it "" $ encode (-5) (encode 5 "xyz")  `shouldBe` "xyz"
+    it "" $ encode (-10) (encode 10 ['a'..'z'])  `shouldBe` ['a'..'z']
     it "" $ encode 3 "haskell is fun"  `shouldBe` "kdvnhoo lv ixq"
     it "" $ encode (-3)  "kdvnhoo lv ixq"`shouldBe` "haskell is fun"
 
