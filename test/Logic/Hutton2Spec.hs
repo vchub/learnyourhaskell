@@ -114,21 +114,20 @@ winner' bs = case rank (rmempty bs) of
   [c]    -> c
   (c:cs) -> winner' (elim c bs)
 
--- winner' []             = error "empty ballots"
--- winner' ballots@(x:xs) | all (\y-> head y==head x) xs = head x
---                -- | otherwise = winner' $ rmLooser (x:xs)
---                | otherwise = winner'.rmempty.elim (head (rank ballots)) ballots
-  -- where rmLooser:: Ord a=> [[a]]->[[a]]
-  --       rmLooser xs = rmempty $ map (\x-> rmElem looser x) xs
-  --
-  --       looser:: Ord a=> [a]->a
-  --       looser xs = fst.head.result $ map head xs
-  --
-  --       rmElem:: Ord a=> a->[a]->[a]
-  --       rmElem elem xs = filter (/= elem) xs
+flatten::[[a]]->[a]
+flatten = foldr (++) []
+
+altMap:: (a->b)->(a->b)->[a]->[b]
+altMap fa fb xs = map (\(x,alt)-> if alt then fa x else fb x) (zip xs (flatten $ repeat [True,False]))
+
 
 spec :: Spec
 spec = describe "Hutton book" $ do
+
+  describe "Exercise" $ do
+    let xs = [1..4] in do
+      it "" $ flatten [[1],[2,3]] `shouldBe` [1,2,3]
+      it "" $ altMap (+1) (+10) xs `shouldBe` [2,12,4,14]
 
   describe "Alternative Voting" $ do
     let xs = [[1,2,3],[2,1],[3,1],[3,2],[1,3]] in do
