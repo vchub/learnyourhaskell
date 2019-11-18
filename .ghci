@@ -15,5 +15,6 @@
 -- :load test/Bird/WordsCountSpec.hs
 /* :load test/CIS194/Homework4Spec.hs */
 /* :load src/CIS194/Homework4.hs */
-:load test/Logic/PrimeSpec.hs
-:load test/Logic/Prime2Spec.hs
+-- :load test/Logic/PrimeSpec.hs
+-- :load test/Logic/Prime2Spec.hs
+:load test/Logic/Hutton2Spec.hs

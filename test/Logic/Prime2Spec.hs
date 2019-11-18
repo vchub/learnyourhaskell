@@ -203,8 +203,34 @@ hack s = encode (negate m) s
         sample = toFreq $ str2Ocur s
 
 
+-- concat $ replicate 3 [1,2]
+
+pyths::Int->[(Int, Int, Int)]
+pyths n = [(x,y,z) | x<-[1..n], y<-[1..n], z<-[1..n], x*x + y*y == z*z]
+
+factors::Int->[Int]
+factors n = [x | x<-[2.. div n 2], mod n x == 0]
+
+--  | all perfect Int up to limit
+perfect::Int->[Int]
+perfect n = [x |x<-[2..n], perfect' x]
+  where perfect' x = (sum $ (factors x)) == x - 1
+
+
 spec :: Spec
 spec = describe "Discrete math" $ do
+
+  describe "factors, perfect" $ do
+    it "" $ factors 10 `shouldBe` [2,5]
+    it "" $ factors 2 `shouldBe` []
+    it "" $ factors 7 `shouldBe` []
+    it "" $ factors 42 `shouldBe` [2,3,6,7,14,21]
+    it "" $ factors 6 `shouldBe` [2,3]
+    it "perfect" $ perfect 500 `shouldBe` [6,28,496]
+
+
+  describe "pyths" $ do
+    it "" $ pyths 10 `shouldBe` [(3,4,5),(4,3,5),(6,8,10),(8,6,10)]
 
   describe "hack" $ do
     it "bb -> ee" $ hack "bb" `shouldBe` "ee"
