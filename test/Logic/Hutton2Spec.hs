@@ -246,7 +246,15 @@ exec (EVAL e :c) n = eval e (ADD n : c)
 exec (ADD n :c) m  = exec c (n+m)
 -- exec (MULT n :c) m = exec c (n*m)
 
+folde :: (Int -> a) -> (a -> a -> a) -> Expr -> a
+folde f _ (Val n)   = f n
+folde f g (Add x y) = g (folde f g x) (folde f g y)
 
+evale::Expr -> Int
+evale e = folde id (+) e
+
+size::Expr -> Int
+size e = folde (const 1) (+) e
 
 spec :: Spec
 spec = describe "Hutton book" $ do
@@ -254,6 +262,8 @@ spec = describe "Hutton book" $ do
   describe "Expr" $ do
     it "" $ value (Add (Add (Val 2) (Val 3)) (Val 4)) `shouldBe` 9
     it "" $ value (Add (Add (Val (-2)) (Val 3)) (Val 4)) `shouldBe` 5
+    it "" $ evale (Add (Add (Val 2) (Val 3)) (Val 4)) `shouldBe` 9
+    it "" $ size (Add (Add (Val 2) (Val 3)) (Val 4)) `shouldBe` 3
     -- it "" $ value (Add (Mult (Val (-2)) (Val 3)) (Val 4)) `shouldBe` (-2)
 
   describe "Prop" $ do
