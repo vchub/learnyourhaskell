@@ -120,9 +120,132 @@ flatten = foldr (++) []
 altMap:: (a->b)->(a->b)->[a]->[b]
 altMap fa fb xs = map (\(x,alt)-> if alt then fa x else fb x) (zip xs (flatten $ repeat [True,False]))
 
+data Nat = Zero | Succ Nat deriving (Show)
+
+nat2int::Nat -> Int
+nat2int Zero     = 0
+nat2int (Succ n) = 1+nat2int n
+
+int2nat::Int-> Nat
+int2nat n | n == 0 = Zero
+    | n < 0 = error "negative int to Nat"
+    | otherwise = Succ (int2nat (n-1))
+
+add::Nat->Nat->Nat
+add Zero n     = n
+add (Succ n) y = Succ (add n y)
+
+data Tree a = Leaf | Node (Tree a) a (Tree a)
+
+conj:: Ord a=> Tree a ->a -> Tree a
+conj Leaf a = Node Leaf a Leaf
+conj (Node l b r) a | a <= b = Node (conj l a) b  r
+      | otherwise = Node l b (conj r a)
+
+lst2tree::Ord a => [a]->Tree a
+lst2tree = foldl' conj Leaf
+
+tree2lst::Ord a => Tree a->[a]
+tree2lst Leaf         = []
+tree2lst (Node l a r) = (tree2lst l) ++ [a]++ (tree2lst r)
+
+occurs::Ord a=> a->Tree a->Bool
+occurs _ Leaf = False
+occurs x (Node l a r) | x<a = occurs x l
+        | x>a = occurs x r
+      | otherwise  = True
+
+
+-- Propositions and tautology
+-- ====================
+
+type Assoc k v = [(k,v)]
+
+findK::Eq k => k-> Assoc k v  -> v
+findK x d = head [v | (k,v)<-d, k==x]
+
+data Prop = Const Bool
+        | Var Char
+        | Not Prop
+        | And Prop Prop
+        | Imply Prop Prop deriving (Show)
+
+type Subst = Assoc Char Bool
+
+eval:: Subst->Prop->Bool
+eval _ (Const c)     = c
+eval tbl (Var x)     = findK x tbl
+eval tbl (Not a)     = not (eval tbl a)
+eval tbl (And a b)   = eval tbl a && eval tbl b
+-- eval tbl (Imply a b) = not (eval tbl a) || (eval tbl b)
+eval tbl (Imply a b) = eval tbl a <= eval tbl b
+
+vars::Prop->[Char]
+vars = rmdups.go
+ where
+    go (Const x)   = []
+    go (Var x)     = [x]
+    go (Not a)     = go a
+    go (And a b)   = go a ++ go b
+    go (Imply a b) = go a ++ go b
+
+bools::Prop->[Bool]
+bools p = map (\tbl -> eval tbl p) tbls
+  where
+        tmp = [(var, val) | val<-[False, True], var<-(vars p)]
+        tbls = makechunks (length (vars p)) tmp
+        -- makechunks _ [] = []
+        makechunks n xs | length xs <= n = [xs]
+        makechunks n xs = take n xs : makechunks n (drop 1 xs)
+
+tautology::Prop->Bool
+tautology p = and (bools p)
 
 spec :: Spec
 spec = describe "Hutton book" $ do
+
+  describe "Prop" $ do
+    let tbl::Subst
+        tbl = [('A', True), ('B', False)]
+        p1 = And (Var 'A') (Not (Var 'A'))
+        p2 = Imply (And (Var 'A') (Var 'B')) (Var 'A')
+        p3 = Imply (Var 'A') (And (Var 'A') (Var 'B'))
+        p4 = Imply (And (Var 'A') (Imply (Var 'A') (Var 'B'))) (Var 'B')
+     in do
+      it "" $ findK 'A' tbl `shouldBe` True
+      it "" $ eval tbl (Const True) `shouldBe` True
+      it "" $ eval tbl (Var 'A') `shouldBe` True
+      it "" $ eval tbl (And (Var 'B') (Var 'A')) `shouldBe` False
+      it "" $ eval tbl p1 `shouldBe` False
+      it "" $ eval [('A', True), ('B', False)] p2 `shouldBe` True
+      it "" $ eval [('A', True), ('B', True)] p2 `shouldBe` True
+      it "" $ vars p1 `shouldBe` ['A']
+      it "" $ vars p2 `shouldBe` ['A','B']
+      it "" $ bools p1 `shouldBe` [False, False]
+      it "" $ tautology p1 `shouldBe` False
+      it "" $ tautology p2 `shouldBe` True
+      it "" $ tautology p3 `shouldBe` False
+      it "" $ tautology p4 `shouldBe` True
+
+  describe "Tree" $ do
+    let t1 = Node Leaf 1 Leaf
+        xs = [1..8]
+     in do
+      it "" $ tree2lst t1 `shouldBe` [1]
+      it "" $ tree2lst (conj t1 2) `shouldBe` [1,2]
+      it "" $ tree2lst (lst2tree xs)  `shouldBe` xs
+      it "" $ tree2lst (conj (lst2tree xs) 1)  `shouldBe` 1:xs
+      it "" $ occurs 4 (lst2tree xs) `shouldBe` True
+      it "" $ occurs 5 (lst2tree [1..4]) `shouldBe` False
+
+  describe "Exercise2" $ do
+    let n = Succ (Succ Zero)
+        a = int2nat 2
+        b = int2nat 3
+     in do
+      it "" $ nat2int n `shouldBe` 2
+      it "" $ nat2int (int2nat 3) `shouldBe` 3
+      it "" $ nat2int (add a b) `shouldBe` 5
 
   describe "Exercise" $ do
     let xs = [1..4] in do
