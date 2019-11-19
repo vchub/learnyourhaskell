@@ -172,13 +172,13 @@ data Prop = Const Bool
 
 type Subst = Assoc Char Bool
 
-eval:: Subst->Prop->Bool
-eval _ (Const c)     = c
-eval tbl (Var x)     = findK x tbl
-eval tbl (Not a)     = not (eval tbl a)
-eval tbl (And a b)   = eval tbl a && eval tbl b
--- eval tbl (Imply a b) = not (eval tbl a) || (eval tbl b)
-eval tbl (Imply a b) = eval tbl a <= eval tbl b
+eval0:: Subst->Prop->Bool
+eval0 _ (Const c)     = c
+eval0 tbl (Var x)     = findK x tbl
+eval0 tbl (Not a)     = not (eval0 tbl a)
+eval0 tbl (And a b)   = eval0 tbl a && eval0 tbl b
+-- eval0 tbl (Imply a b) = not (eval0 tbl a) || (eval0 tbl b)
+eval0 tbl (Imply a b) = eval0 tbl a <= eval0 tbl b
 
 vars::Prop->[Char]
 vars = rmdups.go
@@ -190,7 +190,7 @@ vars = rmdups.go
     go (Imply a b) = go a ++ go b
 
 bools::Prop->[Bool]
-bools p = map (\tbl -> eval tbl p) tbls
+bools p = map (\tbl -> eval0 tbl p) tbls
   where
         tmp = [(var, val) | val<-[False, True], var<-(vars p)]
         tbls = makechunks (length (vars p)) tmp
@@ -201,8 +201,39 @@ bools p = map (\tbl -> eval tbl p) tbls
 tautology::Prop->Bool
 tautology p = and (bools p)
 
+-- ====================
+-- Abstract machine - Add Expression
+
+data Expr = Val Int | Add Expr Expr | Mult Expr Expr
+
+value::Expr -> Int
+-- value (Val x)   = x
+-- value (Add x y) = value x + value y
+value e = eval e []
+
+type Cont = [Op]
+data Op = EVAL Expr | ADD Int | MULT Int
+
+eval::Expr->Cont->Int
+eval (Val n) c    = exec c n
+eval (Add x y) c  = eval x (EVAL y:c)
+eval (Mult x y) c = eval x (EVAL y:c)
+
+exec::Cont->Int->Int
+exec [] n          = n
+exec (EVAL e :c) n = eval e (ADD n : c)
+exec (ADD n :c) m  = exec c (n+m)
+-- exec (MULT n :c) m = exec c (n*m)
+
+
+
 spec :: Spec
 spec = describe "Hutton book" $ do
+
+  describe "Expr" $ do
+    it "" $ value (Add (Add (Val 2) (Val 3)) (Val 4)) `shouldBe` 9
+    it "" $ value (Add (Add (Val (-2)) (Val 3)) (Val 4)) `shouldBe` 5
+    -- it "" $ value (Add (Mult (Val (-2)) (Val 3)) (Val 4)) `shouldBe` (-2)
 
   describe "Prop" $ do
     let tbl::Subst
@@ -213,12 +244,12 @@ spec = describe "Hutton book" $ do
         p4 = Imply (And (Var 'A') (Imply (Var 'A') (Var 'B'))) (Var 'B')
      in do
       it "" $ findK 'A' tbl `shouldBe` True
-      it "" $ eval tbl (Const True) `shouldBe` True
-      it "" $ eval tbl (Var 'A') `shouldBe` True
-      it "" $ eval tbl (And (Var 'B') (Var 'A')) `shouldBe` False
-      it "" $ eval tbl p1 `shouldBe` False
-      it "" $ eval [('A', True), ('B', False)] p2 `shouldBe` True
-      it "" $ eval [('A', True), ('B', True)] p2 `shouldBe` True
+      it "" $ eval0 tbl (Const True) `shouldBe` True
+      it "" $ eval0 tbl (Var 'A') `shouldBe` True
+      it "" $ eval0 tbl (And (Var 'B') (Var 'A')) `shouldBe` False
+      it "" $ eval0 tbl p1 `shouldBe` False
+      it "" $ eval0 [('A', True), ('B', False)] p2 `shouldBe` True
+      it "" $ eval0 [('A', True), ('B', True)] p2 `shouldBe` True
       it "" $ vars p1 `shouldBe` ['A']
       it "" $ vars p2 `shouldBe` ['A','B']
       it "" $ bools p1 `shouldBe` [False, False]
