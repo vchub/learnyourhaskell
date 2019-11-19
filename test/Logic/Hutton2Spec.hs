@@ -135,6 +135,13 @@ add::Nat->Nat->Nat
 add Zero n     = n
 add (Succ n) y = Succ (add n y)
 
+mult::Nat->Nat->Nat
+mult Zero n          = Zero
+mult (Succ (Zero)) y = y
+mult (Succ n) y      = add (mult n y) y
+
+
+-- ====================
 data Tree a = Leaf | Node (Tree a) a (Tree a)
 
 conj:: Ord a=> Tree a ->a -> Tree a
@@ -155,6 +162,20 @@ occurs x (Node l a r) | x<a = occurs x l
         | x>a = occurs x r
       | otherwise  = True
 
+balanced::Ord a=> Tree a->Bool
+balanced Leaf         = True
+balanced (Node l _ r) = abs ((treeHeight l) -(treeHeight r)) <= 1 && (balanced l) && (balanced r)
+
+treeHeight::Tree a->Int
+treeHeight Leaf         = 0
+treeHeight (Node l _ r) = (max (treeHeight l) (treeHeight r)) + 1
+
+balance::Ord a=> [a]->Tree a
+balance [] = Leaf
+balance (x:xs) = Node (balance l) x (balance r)
+  where n = length xs `div` 2
+        l = take n xs
+        r = drop n xs
 
 -- Propositions and tautology
 -- ====================
@@ -261,6 +282,9 @@ spec = describe "Hutton book" $ do
   describe "Tree" $ do
     let t1 = Node Leaf 1 Leaf
         xs = [1..8]
+        -- ys = zip (reverse [1..4]) [5..9]
+        -- ys
+
      in do
       it "" $ tree2lst t1 `shouldBe` [1]
       it "" $ tree2lst (conj t1 2) `shouldBe` [1,2]
@@ -268,6 +292,11 @@ spec = describe "Hutton book" $ do
       it "" $ tree2lst (conj (lst2tree xs) 1)  `shouldBe` 1:xs
       it "" $ occurs 4 (lst2tree xs) `shouldBe` True
       it "" $ occurs 5 (lst2tree [1..4]) `shouldBe` False
+      it "" $ treeHeight (lst2tree [1..4]) `shouldBe` 4
+      it "" $ balanced (lst2tree [1..4]) `shouldBe` False
+      it "" $ balanced (lst2tree [1..4]) `shouldBe` False
+      it "" $ balanced (balance [1..7]) `shouldBe` True
+      it "" $ balanced (balance [1..8]) `shouldBe` True
 
   describe "Exercise2" $ do
     let n = Succ (Succ Zero)
@@ -277,6 +306,8 @@ spec = describe "Hutton book" $ do
       it "" $ nat2int n `shouldBe` 2
       it "" $ nat2int (int2nat 3) `shouldBe` 3
       it "" $ nat2int (add a b) `shouldBe` 5
+      it "" $ nat2int (mult a b) `shouldBe` 6
+      it "" $ nat2int (mult a Zero) `shouldBe` 0
 
   describe "Exercise" $ do
     let xs = [1..4] in do
