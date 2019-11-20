@@ -3,6 +3,7 @@
 module Hutton.CountdownSpec where
 
 
+import           Data.List
 import           Test.Hspec
 
 -- Given a sequence of numbers and a target number, attempt to construct an
@@ -70,6 +71,9 @@ choices = concat . map perm . subs
 -- choices []       = []
 -- choices [x     ] = [[x]]
 -- choices (x : xs) = [[x]] ++ choices xs ++ perm (x : xs)
+
+choices1 :: [a] -> [[a]]
+choices1 ns = concat [ perm s | s <- subs ns ]
 
 split :: [a] -> [([a], [a])]
 split []       = []
@@ -188,3 +192,28 @@ spec = describe "Countdown 1" $ do
                    , [3, 1, 2]
                    , [3, 2, 1]
                    ]
+
+  describe "Exercise ch 9" $ do
+    it "" $ choices1 [2] `shouldBe` [[], [2]]
+    it "" $ choices1 [1, 2] `shouldBe` [[], [2], [1], [1, 2], [2, 1]]
+
+    it "" $ isChoice ([] :: [Int]) ([] :: [Int]) `shouldBe` True
+    it "" $ isChoice [1, 2] [3, 2, 1] `shouldBe` True
+    it "" $ isChoice [3, 1, 2] [3, 2, 1] `shouldBe` True
+    it "" $ isChoice [3, 4, 2] [3, 2, 1, 5] `shouldBe` False
+
+
+isChoice :: Ord a => [a] -> [a] -> Bool
+isChoice xs ys = subls (sort xs) (sort ys)
+ where
+  subls [] _  = True
+  subls _  [] = False
+  subls (x : xs) (y : ys) | x > y     = False
+                          | x < y     = subls xs (y : ys)
+                          | otherwise = subls xs ys
+
+
+
+
+
+

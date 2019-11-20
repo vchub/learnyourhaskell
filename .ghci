@@ -15,4 +15,6 @@
 -- :load test/Bird/WordsCountSpec.hs
 /* :load test/CIS194/Homework4Spec.hs */
 -- :load test/Logic/Hutton2Spec.hs
-:load test/Hutton/CountdownSpec.hs
+-- :load test/Hutton/CountdownSpec.hs
+:load src/Hutton/Ch10.hs
+:load test/Hutton/Ch10Spec.hs
