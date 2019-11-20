@@ -16,6 +16,7 @@ spec = describe "Ch10" $ do
     it "" $ intersect "a" "xaba" `shouldBe` "-a-a"
     it "" $ intersect "foo" "somef" `shouldBe` "-o--f"
 
-    -- it "" $ someFunc `shouldBe` (0 :: IO Int)
     it "head is the 1st elem of a list" $ do
       property $ \x xs -> head (x : xs) == (x :: Int)
+    -- n <- strlen
+    -- it "" $ n `shouldBe` (0 :: Int)
