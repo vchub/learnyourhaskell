@@ -250,14 +250,31 @@ folde :: (Int -> a) -> (a -> a -> a) -> Expr -> a
 folde f _ (Val n)   = f n
 folde f g (Add x y) = g (folde f g x) (folde f g y)
 
-evale::Expr -> Int
+evale ::Expr -> Int
 evale e = folde id (+) e
 
 size::Expr -> Int
 size e = folde (const 1) (+) e
 
+data Maybe1 a = Nothing1 | Just1 a
+
+instance Eq a => Eq (Maybe1 a) where
+  Nothing1 == Nothing1 = True
+  (Just1 a) == (Just1 b) = a == b
+  _ ==_ = False
+
+-- instance Eq a => Eq [a] where
+
+
+
+
 spec :: Spec
 spec = describe "Hutton book" $ do
+
+  describe "Maybe1" $ do
+    it "" $ (Just1 1) == (Just1 1) `shouldBe` True
+    it "" $ (Just1 2) == (Just1 1) `shouldBe` False
+    it "" $ Nothing1 == (Just1 1) `shouldBe` False
 
   describe "Expr" $ do
     it "" $ value (Add (Add (Val 2) (Val 3)) (Val 4)) `shouldBe` 9
