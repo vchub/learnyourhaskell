@@ -3,18 +3,9 @@
 :set prompt "λ "
 -- :load src/Lib.hs
 -- :load test/Spec.hs
--- :load test/D1Spec.hs
-/* :load test/cis194/Pic1Spec.hs */
-/* :load src/cis194/pic1.hs */
-/* :load test/CIS194/Homework1Spec.hs */
-/* :load test/StreamsSpec.hs */
-/* :load src/CIS194/Maze.hs */
-/* :load test/FoldsSpec.hs */
-/* :load src/CIS194/Homework2.hs src/CIS194/MyList.hs test/CIS194/MyListSpec.hs */
--- :load test/Misc/CoinChangeSpec.hs test/Misc/ReversePolishNotationSpec.hs
 -- :load test/Bird/WordsCountSpec.hs
 /* :load test/CIS194/Homework4Spec.hs */
 -- :load test/Logic/Hutton2Spec.hs
 -- :load test/Hutton/CountdownSpec.hs
-:load src/Hutton/Ch10.hs
-:load test/Hutton/Ch10Spec.hs
+:load src/Hutton/Ch11.hs
+:load test/Hutton/Ch11Spec.hs
