@@ -4,7 +4,7 @@ module Hutton.Ch11 where
 
 import           Data.Char
 import           Data.List
--- import           System.IO
+import           System.IO
 
 size :: Int
 size = 3
@@ -128,6 +128,80 @@ type Pos = (Int, Int)
 
 goto :: Pos -> IO ()
 goto (x, y) = putStr ("\ESC[" ++ (show y) ++ ";" ++ (show x) ++ "H")
+
+
+
+main :: IO ()
+main = do
+  hSetBuffering stdout NoBuffering
+  play empty O
+
+play :: Grid -> Player -> IO ()
+play g p = do
+  cls
+  goto (1, 1)
+  putGrid g
+  play' g p
+
+play' :: Grid -> Player -> IO ()
+play' g p
+  | wins O g = putStrLn "Player O won!\n"
+  | wins X g = putStrLn "Player X won!\n"
+  | full g = putStrLn "It's a draw.\n"
+  | p == O = do
+    i <- getNat (prompt p)
+    case move g i p of
+      [] -> do
+        putStrLn "ERROR: Invalid move"
+        play' g p
+      [g'] -> play g' (next p)
+      _    -> putStrLn "ERROR: 502"
+  | p == X = do
+    putStr "Player X is thinking..."
+    (play $! bestmoove g p) (next p)
+  | otherwise = error "play' pattern error"
+
+
+data Tree a = Node a [Tree a]
+
+gametree :: Grid -> Player -> Tree Grid
+gametree g p = Node g [ gametree g' (next p) | g' <- moves g p ]
+
+moves :: Grid -> Player -> [Grid]
+moves g p | won g     = []
+          | full g    = []
+          | otherwise = concat [ move g i p | i <- [0 .. size * size - 1] ]
+
+prune :: Int -> Tree a -> Tree a
+prune 0 (Node x _ ) = Node x []
+prune n (Node x ts) = Node x [ prune (n - 1) t | t <- ts ]
+
+minmax :: Tree Grid -> Tree (Grid, Player)
+minmax (Node g []) | wins O g  = Node (g, O) []
+                   | wins X g  = Node (g, X) []
+                   | otherwise = Node (g, B) []
+minmax (Node g ts) | (turn g) == O = Node (g, minimum ps) ts'
+                   | (turn g) == X = Node (g, maximum ps) ts'
+                   | otherwise     = error "minmax turn patern"
+ where
+  ts' = map minmax ts
+  ps  = [ p | Node (_, p) _ <- ts' ]
+
+bestmoove :: Grid -> Player -> Grid
+bestmoove g p = head [ g' | Node (g', p') _ <- ts, p' == best ]
+ where
+  tree              = prune depth (gametree g p)
+  Node (_, best) ts = minmax tree
+
+depth :: Int
+depth = 9
+
+
+
+
+
+
+
 
 
 
