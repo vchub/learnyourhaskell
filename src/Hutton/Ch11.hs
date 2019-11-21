@@ -5,7 +5,7 @@ module Hutton.Ch11 where
 import           Data.Char
 import           Data.List
 import           System.IO
-import           System.Random           hiding ( next )
+-- import           System.Random hiding (next)
 
 size :: Int
 size = 3
@@ -159,11 +159,15 @@ play' g p
       _    -> putStrLn "ERROR: 502"
   | p == X = do
     putStr "Player X is thinking..."
-    -- (play $! bestmoove g p) (next p)
-    let gs = bestmoove2 g p
-    n <- randomRIO (0, length gs - 1)
-    (play $! gs !! n) (next p)
-  | otherwise = error "play' pattern error"
+    (play $! bestmoove g p) (next p)
+  |
+    -- random
+    -- let gs = bestmoove2 g p
+    -- n <- randomRIO (0, length gs - 1)
+    -- (play $! gs !! n) (next p)
+    -- shortest tree
+    -- (play $! bestmoove3 g p) (next p)
+    otherwise = error "play' pattern error"
 
 
 data Tree a = Node a [Tree a]
@@ -175,6 +179,9 @@ moves :: Grid -> Player -> [Grid]
 moves g p | won g     = []
           | full g    = []
           | otherwise = concat [ move g i p | i <- [0 .. size * size - 1] ]
+
+depth :: Int
+depth = 9
 
 prune :: Int -> Tree a -> Tree a
 prune 0 (Node x _ ) = Node x []
@@ -203,8 +210,15 @@ bestmoove2 g p = [ g' | Node (g', p') _ <- ts, p' == best ]
   tree              = prune depth (gametree g p)
   Node (_, best) ts = minmax tree
 
-depth :: Int
-depth = 9
+bestmoove3 :: Grid -> Player -> Grid
+bestmoove3 g p = snd $ head tg
+ where
+  tree = prune depth (gametree g p)
+  Node (_, best) ts = minmax tree
+  tg = [ (d, g') | Node (g', p') ts' <- ts, d <- map minDepth ts', p' == best ]
+  -- gs = [ g' | Node (g', p') _ <- ts, p' == best ]
+
+
 
 -- ====================
 -- Exercise
@@ -216,6 +230,9 @@ maxDepth :: Tree a -> Int
 maxDepth (Node _ []) = 0
 maxDepth (Node _ ts) = 1 + maximum (map maxDepth ts)
 
+minDepth :: Tree a -> Int
+minDepth (Node _ []) = 0
+minDepth (Node _ ts) = 1 + minimum (map minDepth ts)
 
 
 

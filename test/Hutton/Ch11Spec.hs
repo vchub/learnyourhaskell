@@ -9,9 +9,12 @@ import           Test.Hspec
 
 spec :: Spec
 spec = describe "Ch11" $ do
+
   -- describe "Exercise" $ do
-    -- it "countNodes" $ countNodes (gametree empty O) `shouldBe` 549946
-    -- it "maxDepth" $ maxDepth (gametree empty O) `shouldBe` 9
+  --   let gtree = gametree empty O in do
+  --     it "countNodes" $ countNodes gtree `shouldBe` 549946
+  --     it "maxDepth" $ maxDepth gtree `shouldBe` 9
+  --     it "minDepth" $ minDepth gtree `shouldBe` 5
 
   describe "misc" $ do
     it "interleave" $ interleave '|' "abc" `shouldBe` "a|b|c"
