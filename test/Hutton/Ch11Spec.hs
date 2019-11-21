@@ -11,11 +11,25 @@ spec :: Spec
 spec = describe "Ch11" $ do
 
   describe "misc" $ do
-    it "" $ next O `shouldBe` X
-    it "" $ diag [[O, O, O], [O, X, O], [O, O, X]] `shouldBe` [O, X, X]
-    it ""
-      $          diag [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-      `shouldBe` ([1, 5, 9] :: [Int])
-    it ""
-      $          transpose' [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-      `shouldBe` ([[1, 4, 7], [2, 5, 8], [3, 6, 9]] :: [[Int]])
+    it "interleave" $ interleave '|' "abc" `shouldBe` "a|b|c"
+    it "interleave" $ concat (interleave "|" ["abc","xx"]) `shouldBe` "abc|xx"
+
+    let b1 = [[O, O, O], [O, X, O], [O, O, X]]
+        b2 = [[X, B, B], [O, X, O], [O, O, X]]
+     in do
+      -- it "showGrid" $ showGrid b2 `shouldBe` "O | O | O"
+      it "showRow" $ showRow (b1!!0) `shouldBe` "O | O | O"
+      it "showRow" $ showRow (b2!!0) `shouldBe` "X |   |  "
+
+      it "won b1" $ won b1 `shouldBe` True
+      it "" $ wins O b1 `shouldBe` True
+      it "" $ wins O b2 `shouldBe` False
+      it "" $ wins X b2 `shouldBe` True
+      it "" $ next O `shouldBe` X
+      it "" $ diag b1 `shouldBe` [O, X, X]
+      it ""
+        $          diag [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        `shouldBe` ([1, 5, 9] :: [Int])
+      it ""
+        $          transpose' [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        `shouldBe` ([[1, 4, 7], [2, 5, 8], [3, 6, 9]] :: [[Int]])

@@ -9,7 +9,12 @@ import           Data.List
 size :: Int
 size = 3
 
-data Player = O|B|X deriving (Eq,Ord,Show)
+data Player = O|B|X deriving (Eq,Ord)
+
+instance Show Player where
+  show O = "O"
+  show B = " "
+  show X = "X"
 
 type Grid = [[Player]]
 
@@ -39,12 +44,38 @@ wins p g = any line (rows ++ cols ++ diags)
   cols  = transpose g
   diags = [diag g, diag (map reverse g)]
 
+won :: Grid -> Bool
+won g = wins O g || wins X g
+
 transpose' :: [[a]] -> [[a]]
 transpose' ([] : _) = []
 transpose' xss      = [map head xss] ++ (transpose' (map tail xss))
 
 -- diag :: Grid -> [Player]
 diag :: [[a]] -> [a]
-diag g = [ (g !! i) !! i | i <- [0 .. length g - 1] ]
+diag g = [ g !! i !! i | i <- [0 .. length g - 1] ]
+
+interleave :: a -> [a] -> [a]
+interleave _ []       = []
+interleave _ [y     ] = [y]
+interleave x (y : ys) = y : x : interleave x ys
+
+showRow :: Show a => [a] -> String
+showRow = concat . interleave bar . map show where bar = " | "
+
+showGrid :: Grid -> String
+showGrid = unlines . interleave bar . map showRow
+  -- where bar = "----------------"
+  where bar = concat $ replicate ((size * 4) - 1) "-"
+
+
+putGrid :: Grid -> IO ()
+putGrid = putStrLn . showGrid
+-- putGrid = putStrLn . unlines . concat . interleave bar . map showRow
+--   where bar = [replicate ((size * 4) - 1) '-']
+
+
+
+
 
 
