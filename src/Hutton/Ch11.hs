@@ -5,6 +5,7 @@ module Hutton.Ch11 where
 import           Data.Char
 import           Data.List
 import           System.IO
+import           System.Random           hiding ( next )
 
 size :: Int
 size = 3
@@ -158,7 +159,10 @@ play' g p
       _    -> putStrLn "ERROR: 502"
   | p == X = do
     putStr "Player X is thinking..."
-    (play $! bestmoove g p) (next p)
+    -- (play $! bestmoove g p) (next p)
+    let gs = bestmoove2 g p
+    n <- randomRIO (0, length gs - 1)
+    (play $! gs !! n) (next p)
   | otherwise = error "play' pattern error"
 
 
@@ -193,10 +197,24 @@ bestmoove g p = head [ g' | Node (g', p') _ <- ts, p' == best ]
   tree              = prune depth (gametree g p)
   Node (_, best) ts = minmax tree
 
+bestmoove2 :: Grid -> Player -> [Grid]
+bestmoove2 g p = [ g' | Node (g', p') _ <- ts, p' == best ]
+ where
+  tree              = prune depth (gametree g p)
+  Node (_, best) ts = minmax tree
+
 depth :: Int
 depth = 9
 
+-- ====================
+-- Exercise
 
+countNodes :: Tree a -> Int
+countNodes (Node _ ts) = 1 + sum (map countNodes ts)
+
+maxDepth :: Tree a -> Int
+maxDepth (Node _ []) = 0
+maxDepth (Node _ ts) = 1 + maximum (map maxDepth ts)
 
 
 
