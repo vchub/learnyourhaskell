@@ -17,6 +17,10 @@ spec = describe "Ch11" $ do
     let b1 = [[O, O, O], [O, X, O], [O, O, X]]
         b2 = [[X, B, B], [O, X, O], [O, O, X]]
      in do
+      it "chop" $ chop 2 [1,2,3,4]  `shouldBe` ([[1,2],[3,4]]::[[Int]])
+      it "chop" $ chop 3 [1,2,3,4]  `shouldBe` ([[1,2,3],[4]]::[[Int]])
+      it "move" $ move b2 1 O  `shouldBe` [[[X, O, B], [O, X, O], [O, O, X]]]
+
       -- it "showGrid" $ showGrid b2 `shouldBe` "O | O | O"
       it "showRow" $ showRow (b1!!0) `shouldBe` "O | O | O"
       it "showRow" $ showRow (b2!!0) `shouldBe` "X |   |  "

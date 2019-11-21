@@ -2,7 +2,7 @@
 
 module Hutton.Ch11 where
 
--- import           Data.Char
+import           Data.Char
 import           Data.List
 -- import           System.IO
 
@@ -68,11 +68,70 @@ showGrid = unlines . interleave bar . map showRow
   -- where bar = "----------------"
   where bar = concat $ replicate ((size * 4) - 1) "-"
 
-
 putGrid :: Grid -> IO ()
 putGrid = putStrLn . showGrid
 -- putGrid = putStrLn . unlines . concat . interleave bar . map showRow
 --   where bar = [replicate ((size * 4) - 1) '-']
+
+valid :: Grid -> Int -> Bool
+valid g n = 0 <= n && n < size * size && concat g !! n == B
+
+move :: Grid -> Int -> Player -> [Grid]
+move g n p = if valid g n then [chop size (xs ++ [p] ++ ys)] else []
+  where (xs, _ : ys) = splitAt n (concat g)
+
+chop :: Int -> [a] -> [[a]]
+chop _ [] = []
+chop n xs = take n xs : chop n (drop n xs)
+
+getNat :: String -> IO Int
+getNat promt = do
+  putStr promt
+  xs <- getLine
+  if xs /= [] && all isDigit xs
+    then return (read xs)
+    else do
+      putStrLn "ERROR: Invalid number"
+      getNat promt
+
+tictaktoe :: IO ()
+tictaktoe = run empty O
+
+run :: Grid -> Player -> IO ()
+run g p = do
+  cls
+  goto (1, 1)
+  putGrid g
+  run' g p
+
+run' :: Grid -> Player -> IO ()
+run' g p
+  | wins O g = putStrLn "Player O won!\n"
+  | wins X g = putStrLn "Player X won!\n"
+  | full g = putStrLn "It's a draw.\n"
+  | otherwise = do
+    i <- getNat (prompt p)
+    case move g i p of
+      [] -> do
+        putStrLn "ERROR: Invalid move"
+        run' g p
+      [g'] -> run g' (next p)
+      _    -> putStrLn "ERROR: 502"
+
+prompt :: Player -> String
+prompt p = "Player " ++ show p ++ " , enter your move "
+
+cls :: IO ()
+cls = putStr "\ESC[2J"
+
+type Pos = (Int, Int)
+
+goto :: Pos -> IO ()
+goto (x, y) = putStr ("\ESC[" ++ (show y) ++ ";" ++ (show x) ++ "H")
+
+
+
+
 
 
 
