@@ -7,5 +7,6 @@
 /* :load test/CIS194/Homework4Spec.hs */
 -- :load test/Logic/Hutton2Spec.hs
 -- :load test/Hutton/CountdownSpec.hs
-:load src/Hutton/Ch11.hs
-:load test/Hutton/Ch11Spec.hs
+-- :load test/Hutton/Ch12Spec.hs
+-- :load test/Hutton/Ch12Spec.hs src/Hutton/Ch12.hs
+:load test/Hutton/Ch13Spec.hs src/Hutton/Ch13.hs
