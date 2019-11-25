@@ -15,6 +15,7 @@ spec = describe "Ch13" $ do
   describe "Exercises" $ do
     -- it "comment" $ parse (takeWhileP (/= 'a')) "bdabc" `shouldBe` [("bd","abc")]
     it "comment" $ parse comment " -- foo \n abc" `shouldBe` [(()," abc")]
+    it "comment" $ parse comment " -- foo \nabc" `shouldBe` [((),"abc")]
 
   describe "Parser" $ do
     let s = "abc"
