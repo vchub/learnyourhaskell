@@ -5,9 +5,6 @@
 -- :load test/Spec.hs
 -- :load test/Bird/WordsCountSpec.hs
 /* :load test/CIS194/Homework4Spec.hs */
--- :load test/Logic/Hutton2Spec.hs
--- :load test/Hutton/CountdownSpec.hs
--- :load test/Hutton/Ch12Spec.hs
--- :load test/Hutton/Ch12Spec.hs src/Hutton/Ch12.hs
 -- :load test/Hutton/Ch13Spec.hs src/Hutton/Ch13.hs
-:load test/Hutton/Ch14Spec.hs src/Hutton/Ch14.hs
+-- :load test/Hutton/Ch14Spec.hs src/Hutton/Ch14.hs
+:load test/Hutton/Ch16Spec.hs src/Hutton/Ch16.hs
