@@ -1,12 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 
 module Hutton.Ch10
-  ( strlen
-  , intersect
-  , hangman
-  , act
-  , rmdups
-  )
 where
 
 intersect :: String -> String -> String

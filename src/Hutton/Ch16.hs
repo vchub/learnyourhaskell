@@ -3,7 +3,7 @@
 module Hutton.Ch16 where
 
 import           Control.Applicative
-import qualified Hutton.Ch13                   as P
+import qualified Hutton.Ch13         as P
 
 data Expr = Val Int | Add Expr Expr | Sub Expr Expr deriving (Eq, Show)
 
@@ -41,7 +41,7 @@ val = do
 
 type Stack = [Int]
 type Code = [Op]
-data Op = PUSH Int | ADD |SUB deriving (Show, Eq)
+data Op = PUSH Int | ADD | SUB | THROW | CATCH deriving (Show, Eq)
 
 comp :: Expr -> Code
 comp e = go e []
@@ -68,6 +68,10 @@ compile xs = case P.parse expr xs of
   (_ : _)    -> error "eval: Shouldn't be the case"
 
 
+-- ====================
+-- Ch18
+
+type Cont = Stack ->Stack
 
 
 
