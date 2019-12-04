@@ -3,8 +3,8 @@ module Bird.Ch1 where
 
 import           Control.Applicative
 import           Data.List
-import qualified Data.Map                      as M
-import qualified Data.Text                     as T
+import qualified Data.Map            as M
+import qualified Data.Text           as T
 
 count :: (Eq a) => a -> [a] -> Int
 count a xs = sum [ 1 | x <- xs, x == a ]
@@ -78,3 +78,47 @@ break (==4) [1,3,4]
 break (==4) [4]
 break (==4) [4]
 --}
+
+-- ====================
+-- Given a sorted array arr of distinct integers, return the lowest index i for
+-- which arr[i] == i. Return null if there is no such index.
+--
+-- For example, given the array [-5, -3, 2, 3], return 2 since arr[2] == 2.
+-- Even though arr[3] == 3, we return 2 since it's the lowest index.
+
+arri :: [Int] -> Maybe Int
+-- arri xs = go 0 (length xs) -- (length xs - 1)
+arri xs = go 0 (length xs - 1)
+ where
+  go :: Int -> Int -> Maybe Int
+  go l h | xs !! l > l  = Nothing
+         | xs !! h < h  = Nothing
+         | xs !! l == l = Just l
+         | xs !! m >= m = go l m
+         | otherwise    = go (m + 1) h
+    where m = (l + h) `div` 2
+
+
+-- | l >= h       = Nothing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

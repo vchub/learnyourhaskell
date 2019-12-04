@@ -32,6 +32,15 @@ spec = describe "Ch1" $ do
     it "sayNumber 101" $ sayNumber 101  `shouldBe` Just "one hundred one"
 
 
+  describe "arri problem" $ do
+    it "arri" $  arri [0]  `shouldBe` Just 0
+    it "arri" $  arri [0, 1]  `shouldBe` Just 0
+    it "[-1, 1]" $  arri [-1, 1]  `shouldBe` Just 1
+    it "[-1, 1, 2, 3]" $  arri [-1, 1, 2, 3]  `shouldBe` Just 1
+    it "arri" $  arri [-1, 0, 2]  `shouldBe` Just 2
+    it "arri" $  arri [-1, 0, 3]  `shouldBe` Nothing
+    it "arri" $  arri [-1, 0, 1, 3]  `shouldBe` Just 3
+    it "[-1, 0, 3, 3, 4]" $  arri [-1, 0, 3, 3, 4]  `shouldBe` Nothing
 
 
 
