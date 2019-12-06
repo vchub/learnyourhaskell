@@ -3,8 +3,8 @@ module Bird.Ch1 where
 
 import           Control.Applicative
 import           Data.List
-import qualified Data.Map            as M
-import qualified Data.Text           as T
+import qualified Data.Map                      as M
+import qualified Data.Text                     as T
 
 count :: (Eq a) => a -> [a] -> Int
 count a xs = sum [ 1 | x <- xs, x == a ]
@@ -101,6 +101,30 @@ arri xs = go 0 (length xs - 1)
 
 -- | l >= h       = Nothing
 
+
+{-
+   Implement Int division
+   div 10 3  = (3,1)
+-}
+div0 :: Int -> Int -> (Int, Int)
+div0 a b | b == 0    = error "0 division"
+         | otherwise = go 0
+ where
+  i = signum b
+  go n | b * n > a = (n - i, a - (n - i) * b)
+       | otherwise = go (n + i)
+
+div1 :: Int -> Int -> (Int, Int)
+div1 a b | b == 0          = error "0 division"
+         | a >= 0 && b < 0 = (-1 * (q' + 1), b + r')
+         | a < 0 && b > 0  = (-1 * (q' + 1), b - r')
+         | a < 0 && b < 0  = (q', -1 * r')
+         | otherwise       = (q', r')
+ where
+  go q n b' | n < b'    = (q, n)
+            | {-{-   -}some commet -}
+              otherwise = go (q + 1) (n - b') b'
+  (q', r') = go 0 (abs a) (abs b)
 
 
 

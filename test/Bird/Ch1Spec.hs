@@ -42,8 +42,21 @@ spec = describe "Ch1" $ do
     it "arri" $  arri [-1, 0, 1, 3]  `shouldBe` Just 3
     it "[-1, 0, 3, 3, 4]" $  arri [-1, 0, 3, 3, 4]  `shouldBe` Nothing
 
+  describe "div0" $ do
+    it "3 1" $  div0 3 1 `shouldBe` (3,0)
+    it "10 3" $  div0 10 3 `shouldBe` (3,1)
+    it "0 3" $  div0 0 3 `shouldBe` (0,0)
+    -- it "10 -3" $  div0 10 (-3) `shouldBe` (-4,-2)
+    -- it "-10 -3" $  div0 (-10) (-3) `shouldBe` (3,1)
 
 
+  describe "div1" $ do
+    it "3 1" $  div1 3 1 `shouldBe` (3,0)
+    it "10 3" $  div1 10 3 `shouldBe` (3,1)
+    it "0 3" $  div1 0 3 `shouldBe` (0,0)
+    it "-10 -3" $  div1 (-10) (-3) `shouldBe` (3,-1)
+    it "10 -3" $  div1 10 (-3) `shouldBe` (-4,-2)
+    it "-10 3" $  div1 (-10) 3 `shouldBe` (-4,2)
 
 
 
