@@ -2,9 +2,10 @@
 module Bird.Ch1 where
 
 import           Control.Applicative
+import           Data.Char
 import           Data.List
-import qualified Data.Map                      as M
-import qualified Data.Text                     as T
+import qualified Data.Map.Strict     as M
+import qualified Data.Text           as T
 
 count :: (Eq a) => a -> [a] -> Int
 count a xs = sum [ 1 | x <- xs, x == a ]
@@ -128,14 +129,106 @@ div1 a b | b == 0          = error "0 division"
 
 
 
+units :: [String]
+units =
+  [ "zero"
+  , "one"
+  , "two"
+  , "three"
+  , "four"
+  , "five"
+  , "six"
+  , "seven"
+  , "eight"
+  , "nine"
+  ]
+teens :: [String]
+teens =
+  [ "ten"
+  , "eleven"
+  , "twelve"
+  , "thirteen"
+  , "fourteen"
+  , "fifteen"
+  , "sixteen"
+  , "seventeen"
+  , "eighteen"
+  , "nineteen"
+  ]
+tens :: [String]
+tens =
+  ["twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+
+convert1 :: Int -> String
+convert1 n = units !! (n)
+
+convert :: Int -> String
+convert 0  = "zero"
+convert n' = unwords (go n')
+ where
+  go :: Int -> [String]
+  go n
+    | n == 0      = []
+    | n < 10      = [units !! (n)]
+    | n < 20      = [teens !! (n - 10)]
+    | n < 100     = (tens !! (div n 10 - 2)) : (go (mod n 10))
+    | n < 1000    = [(units !! (div n 100))] ++ ["hundred"] ++ (go (mod n 100))
+    | n < 1000000 = [convert (div n 1000)] ++ ["thousand"] ++ (go (mod n 1000))
+    | otherwise   = ["NULL"]
+
+
+-- unwords ["one","two"]
+
+flatten :: [[a]] -> [a]
+flatten = foldl' (++) []
+
+
+dictWords :: [String]
+dictWords = ["ignore", "region", "ringer", "resign", "signer", "singer"]
+
+makeDict :: [String] -> M.Map String [String]
+makeDict = foldl' (\m w -> M.insertWith (++) (sort w) [w] m) M.empty
+
+-- makeDict dictWords
+
+cwords :: Int -> FilePath -> FilePath -> IO String
+cwords n infile outfile = do
+  text <- readFile infile
+  putStrLn text
+  writeFile outfile (take n text)
+  putStrLn "cwords is done"
+  return (take 4 text)
+
+modernise :: String -> String
+modernise = unwords . map capilize . words
+ where
+  capilize []       = []
+  capilize (x : xs) = toUpper x : xs
+
+myexp :: Int -> Int -> Int
+myexp _ 0 = 1
+myexp x 1 = x
+myexp x n = y * y * z
+ where
+  y = myexp x (div n 2)
+  z = myexp x (mod n 2)
+
+myexp1 :: Int -> Int -> Int
+myexp1 _ 0 = 1
+myexp1 x 1 = x
+myexp1 x n | odd n     = (myexp1 x (n - 1)) * x
+           | otherwise = (myexp1 x (div n 2)) * (myexp1 x (div n 2))
+
+ispalindrome :: String -> Bool
+ispalindrome s = s' == reverse s'
+  where s' = map toLower . filter isAlpha $ s
 
 
 
+-- cwords 35 "./foo.txt" "./boo.txt"
 
-
-
-
-
+-- if True then False else True
+-- a = [(+), (-)]
 
 
 

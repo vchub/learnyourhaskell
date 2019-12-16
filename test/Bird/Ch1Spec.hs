@@ -58,8 +58,45 @@ spec = describe "Ch1" $ do
     it "10 -3" $  div1 10 (-3) `shouldBe` (-4,-2)
     it "-10 3" $  div1 (-10) 3 `shouldBe` (-4,2)
 
+  describe "convert1, 2" $ do
+    it "convert1" $ convert1 0 `shouldBe` "zero"
+    it "convert1" $ convert1 1 `shouldBe` "one"
+    it "convert" $ convert 1 `shouldBe` "one"
+    it "convert" $ convert 11 `shouldBe` "eleven"
+    it "convert" $ convert 10 `shouldBe` "ten"
+    it "convert" $ convert 19 `shouldBe` "nineteen"
+    it "convert" $ convert 20 `shouldBe` "twenty"
+    it "convert" $ convert 31 `shouldBe` "thirty one"
+    it "convert" $ convert 99 `shouldBe` "ninety nine"
+    it "convert" $ convert 101 `shouldBe` "one hundred one"
+    it "convert" $ convert 111 `shouldBe` "one hundred eleven"
+    it "convert" $ convert 921 `shouldBe` "nine hundred twenty one"
+    it "convert" $ convert 1921 `shouldBe` "one thousand nine hundred twenty one"
+    it "convert" $ convert 11921 `shouldBe` "eleven thousand nine hundred twenty one"
 
+  describe "flatten" $ do
+    it "flatten" $ flatten [[1],[]] `shouldBe` ([1]::[Int])
+    it "flatten" $ flatten [[1],[2,3]] `shouldBe` ([1,2,3]::[Int])
+    it "flatten" $ unwords (flatten [["some"],["foo", "bar"]]) `shouldBe` "some foo bar"
 
+  describe "ch2 exercises" $ do
+    it "modernise" $ modernise "" `shouldBe` ""
+    it "modernise" $ modernise "some foo" `shouldBe` "Some Foo"
+    it "myexp" $ myexp 2 0 `shouldBe` 1
+    it "myexp" $ myexp 2 1 `shouldBe` 2
+    it "myexp" $ myexp 2 3 `shouldBe` 8
+    it "myexp" $ myexp 2 4 `shouldBe` 16
+    it "myexp" $ myexp1 2 4 `shouldBe` 16
+    -- it "myexp" $ map (\x-> myexp 2 x) [0..4]`shouldBe` map (2^) [0..4]
+    -- it "myexp" $ map (\x-> myexp1 2 x) [0..4]`shouldBe` map (2^) [0..4]
+    it "ispalindrome" $ ispalindrome "" `shouldBe` True
+    it "ispalindrome" $ ispalindrome "eme" `shouldBe` True
+    it "ispalindrome" $ ispalindrome "emE " `shouldBe` True
+    it "ispalindrome" $ ispalindrome "e\n mE " `shouldBe` True
+
+  -- describe "cwords" $ do
+  --   got <- (cwords 5 "./foo.txt" "./boo.txt")
+  --   it "cwords" $ (read got) `shouldBe` "some"
 
 
 
