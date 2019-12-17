@@ -2,7 +2,7 @@
 module Bird.Ch3 where
 
 -- myfloor :: Float -> Integer
--- myfloor = (`div` 1) . toInteger
+-- myfloor = (`div` 1) . toInt
 
 until0 :: (a -> Bool) -> (a -> a) -> a -> a
 until0 p f a | p (f a)   = f (a)
@@ -33,7 +33,28 @@ floor1 x = fst (until unit shrink bound)
   loower = until ((<= x) . fromInteger) (* 2) (-1)
   upper  = until ((>= x) . fromInteger) (* 2) 1
 
--- until (> 10) (*2) 1
+data Nat = Zero | Succ Nat deriving (Eq, Ord, Show)
 
--- toInteger (4.3::Real)
--- floor (4/3)
+toInt :: Nat -> Integer
+toInt Zero     = 0
+toInt (Succ m) = 1 + (toInt m)
+
+
+instance Num Nat where
+  m + Zero     = m
+  m + (Succ n) = Succ (m + n)
+  m        - Zero     = m
+  Zero     - _        = Zero
+  (Succ m) - (Succ n) = m - n
+
+  _ * Zero        = Zero
+  m * (Succ Zero) = m
+  m * (Succ n   ) = Succ (m + (n * m))
+  fromInteger m | m <= 0    = Zero
+                | otherwise = Succ . fromInteger $ m - 1
+  abs m = m
+  signum Zero     = Zero
+  signum (Succ _) = Succ Zero
+  negate m = m
+
+

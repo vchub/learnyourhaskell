@@ -23,3 +23,11 @@ spec = describe "Ch3" $ do
     it "floor1" $ floor1 (-0.3) `shouldBe` -1
     it "floor1" $ floor1 (-120.3) `shouldBe` -121
     it "floor1" $ floor1 (120.3) `shouldBe` 120
+
+  describe "Nat" $ do
+    it "toInt" $ toInt (fromInteger 3) `shouldBe` 3
+    it "toInt" $ toInt (fromInteger 3) + (fromInteger 3) `shouldBe` 6
+    it "toInt" $ toInt (fromInteger 3) - (fromInteger 3) `shouldBe` 0
+    it "toInt" $ toInt ((fromInteger 3) - (fromInteger 4)) `shouldBe` 0
+    it "toInt" $ toInt ((fromInteger 7) - (fromInteger 4)) `shouldBe` 3
+    it "toInt" $ toInt (fromInteger 3) * (fromInteger 3) `shouldBe` 9
