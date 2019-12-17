@@ -39,6 +39,10 @@ toInt :: Nat -> Integer
 toInt Zero     = 0
 toInt (Succ m) = 1 + (toInt m)
 
+divMod0 :: Nat -> Nat -> (Nat, Nat)
+divMod0 a b = (fromInteger a', fromInteger b')
+  where (a', b') = divMod (toInt a) (toInt b)
+
 
 instance Num Nat where
   m + Zero     = m
@@ -56,5 +60,18 @@ instance Num Nat where
   signum Zero     = Zero
   signum (Succ _) = Succ Zero
   negate m = m
+
+isqrt :: Float -> Integer
+isqrt y = fst (until unit shrink bound)
+ where
+  unit (m, n) = m + 1 == n
+
+  shrink (m, n) = if leq (p ^ (2 :: Integer)) y then (p, n) else (m, p)
+    where p = div (m + n) 2
+
+  leq :: Integer -> Float -> Bool
+  leq a b = fromInteger a <= b
+  bound = (0, u)
+  u     = until ((>= y) . fromInteger) (* 2) 1
 
 

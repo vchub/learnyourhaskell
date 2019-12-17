@@ -31,3 +31,16 @@ spec = describe "Ch3" $ do
     it "toInt" $ toInt ((fromInteger 3) - (fromInteger 4)) `shouldBe` 0
     it "toInt" $ toInt ((fromInteger 7) - (fromInteger 4)) `shouldBe` 3
     it "toInt" $ toInt (fromInteger 3) * (fromInteger 3) `shouldBe` 9
+    it "Ord" $ (Succ . fromInteger $ 3) < (fromInteger 4) `shouldBe` False
+    it "Ord" $ (Succ . fromInteger $ 3) == (fromInteger 4) `shouldBe` True
+    it "Ord" $ (Succ . fromInteger $ 3) < (fromInteger 5) `shouldBe` True
+
+    it "divMod0"
+      $          divMod0 (Succ . fromInteger $ 7) (fromInteger 3)
+      `shouldBe` (fromInteger 2, fromInteger 2)
+
+  describe "isqrt" $ do
+    it "isqrt" $ isqrt 3.4 `shouldBe` 1
+    it "isqrt" $ isqrt 4.4 `shouldBe` 2
+    it "isqrt" $ isqrt 32.4 `shouldBe` 5
+    it "isqrt" $ isqrt 36 `shouldBe` 6
