@@ -40,9 +40,10 @@ toInt Zero     = 0
 toInt (Succ m) = 1 + (toInt m)
 
 divMod0 :: Nat -> Nat -> (Nat, Nat)
-divMod0 a b = (fromInteger a', fromInteger b')
-  where (a', b') = divMod (toInt a) (toInt b)
-
+-- divMod0 a b = (fromInteger a', fromInteger b')
+--   where (a', b') = divMod (toInt a) (toInt b)
+divMod0 a b = go a 0
+  where go p q = if p < b then (q, p) else go (p - b) (q + 1)
 
 instance Num Nat where
   m + Zero     = m

@@ -6,4 +6,5 @@
 -- :load test/Bird/WordsCountSpec.hs
 -- :load test/Hutton/Ch16Spec.hs src/Hutton/Ch16.hs
 -- :load test/Bird/Ch1Spec.hs src/Bird/Ch1.hs
-:load test/Bird/Ch3Spec.hs src/Bird/Ch3.hs
+-- :load test/Bird/Ch3Spec.hs src/Bird/Ch3.hs
+:load test/Bird/Ch4Spec.hs src/Bird/Ch4.hs
